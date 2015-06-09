@@ -1,0 +1,20 @@
+﻿<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>USWFCAv32a-04a</Name>
+  <AddInID>{f9d19da9-62a2-40fb-94a0-9afc7f7f10d3}</AddInID>
+  <Description>Computes enhanced two-step floating catchment area and nearest distance accessbility metrics</Description>
+  <Version>2.0</Version>
+  <Image>Images\USWFCAv32a_1.png</Image>
+  <Author>Mitchel Langford and Richard Fry</Author>
+  <Company>WISERD@The University of South Wales</Company>
+  <Date>14/02/2014</Date>
+  <Targets>
+    <Target name="Desktop" version="10.1" />
+  </Targets>
+  <AddIn language="CLR4.0" library="USWFCAv32a.dll" namespace="USWFCAv32a">
+    <ArcMap>
+      <Commands>
+        <Button id="WISERD_University_of_USW" class="USWFCAv32a" message="FCA and Nearest Distance accessibility metrics" caption="FCAv32a" tip="FCA and Nearest Distance metrics" category="Add-In Controls" image="Images\USWFCAv32a.png" />
+      </Commands>
+    </ArcMap>
+  </AddIn>
+</ESRI.Configuration>
