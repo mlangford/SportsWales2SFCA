@@ -4,7 +4,7 @@
   <Description>Computes enhanced two-step floating catchment area and nearest distance accessbility metrics</Description>
   <Version>2.0</Version>
   <Image>Images\USWFCAv32a_1.png</Image>
-  <Author>Mitchel Langford and Richard Fry</Author>
+  <Author>Mitchel Langford</Author>
   <Company>WISERD@The University of South Wales</Company>
   <Date>14/02/2014</Date>
   <Targets>

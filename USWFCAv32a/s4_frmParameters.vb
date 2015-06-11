@@ -24,7 +24,7 @@
     Private Sub btn4_Prev_Click(sender As System.Object, e As System.EventArgs) Handles btn4_Prev.Click
 
         'redisplay previous form
-        Dim p_s3frmDemandDetails As New s3_frmDemandDetails(configObj)
+        Dim p_s3frmDemandDetails As New s3_frmFCASettings(configObj)
         p_s3frmDemandDetails.Location = Me.Location
         p_s3frmDemandDetails.Show()
         Me.Dispose()

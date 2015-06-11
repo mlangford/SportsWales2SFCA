@@ -117,4 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Label8.Text" xml:space="preserve">
+    <value>This ArcGIS Add-In tool is intended for computing accessibility scores based
+upon the "Two-Step Floating Catchment Area (2SFCA)" methodology.
+
+Both "classic" (i.e. with no distance-decay rule) and "enhanced"
+(i.e. with a linear distance-decay rule) FCA scores may be computed.
+
+In addition to a 2SFCA score, the nearest supply point, the cost distance
+to the nearest supply point, and the number of supply points falling within
+the user specified floating catchment cost threshold are also computed.
+
+This Add-In is coded in Visual Basic.NET using Visual Studio 2010, and utilising
+ESRI's Arcobjects. This is a bespoke version developed specifically for SportsWales.
+  
+
+Version:    sw1
+Author:     Mitchel Langford</value>
+  </data>
 </root>

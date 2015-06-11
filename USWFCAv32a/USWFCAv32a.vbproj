@@ -105,16 +105,10 @@
     <Compile Include="configParams.vb" />
     <Compile Include="fcaNAutils.vb" />
     <Compile Include="fcaUtilities.vb" />
-    <Compile Include="Form1.Designer.vb">
-      <DependentUpon>Form1.vb</DependentUpon>
+    <Compile Include="frmAbout.Designer.vb">
+      <DependentUpon>frmAbout.vb</DependentUpon>
     </Compile>
-    <Compile Include="Form1.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form2.Designer.vb">
-      <DependentUpon>Form2.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Form2.vb">
+    <Compile Include="frmAbout.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -134,11 +128,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form2.resx">
-      <DependentUpon>Form2.vb</DependentUpon>
+    <EmbeddedResource Include="frmAbout.resx">
+      <DependentUpon>frmAbout.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -146,14 +137,14 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="s1_frmNetworkLayer.resx">
-      <DependentUpon>s1_frmNetworkLayer.vb</DependentUpon>
+    <EmbeddedResource Include="s1_frmIntroduction.resx">
+      <DependentUpon>s1_frmIntroduction.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="s2_frmSupplyDetails.resx">
-      <DependentUpon>s2_frmSupplyDetails.vb</DependentUpon>
+    <EmbeddedResource Include="s2_frmSupplyDemand.resx">
+      <DependentUpon>s2_frmSupplyDemand.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="s3_frmDemandDetails.resx">
-      <DependentUpon>s3_frmDemandDetails.vb</DependentUpon>
+    <EmbeddedResource Include="s3_frmFCASettings.resx">
+      <DependentUpon>s3_frmFCASettings.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="s4_frmParameters.resx">
       <DependentUpon>s4_frmParameters.vb</DependentUpon>
@@ -185,22 +176,22 @@
     <AddInContent Include="Images\USWFCAv32a_1.png" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="s1_frmNetworkLayer.Designer.vb">
-      <DependentUpon>s1_frmNetworkLayer.vb</DependentUpon>
+    <Compile Include="s1_frmIntroduction.Designer.vb">
+      <DependentUpon>s1_frmIntroduction.vb</DependentUpon>
     </Compile>
-    <Compile Include="s1_frmNetworkLayer.vb">
+    <Compile Include="s1_frmIntroduction.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="s2_frmSupplyDetails.Designer.vb">
-      <DependentUpon>s2_frmSupplyDetails.vb</DependentUpon>
+    <Compile Include="s2_frmSupplyDemand.Designer.vb">
+      <DependentUpon>s2_frmSupplyDemand.vb</DependentUpon>
     </Compile>
-    <Compile Include="s2_frmSupplyDetails.vb">
+    <Compile Include="s2_frmSupplyDemand.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="s3_frmDemandDetails.Designer.vb">
-      <DependentUpon>s3_frmDemandDetails.vb</DependentUpon>
+    <Compile Include="s3_frmFCASettings.Designer.vb">
+      <DependentUpon>s3_frmFCASettings.vb</DependentUpon>
     </Compile>
-    <Compile Include="s3_frmDemandDetails.vb">
+    <Compile Include="s3_frmFCASettings.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="s4_frmParameters.Designer.vb">

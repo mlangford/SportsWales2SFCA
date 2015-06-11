@@ -1,0 +1,15 @@
+This tool computes Floating Catchment Area (FCA) accessibility scores (and various other metrics)
+aimed at determining geographical accessibility to a service. To operatate correctly it requires a
+Map Layer containing points which represent the locations at which the service of interest is supplied.
+Another Map Layer is needed containing points which represent the locations at which demand on this
+service arises (typically these are population weighted centroids of Output Areas, LSOAs, or other tracts).
+
+To a compute travel time or distance between these two sets of points requires a properly configured ESRI
+Network Layer. Using this information the Network Analyst extension can compute an Origin-Destination matrix
+between the two point datasets. The points held in both of the point layers must have been "pre-snapped" to
+the selected network layer using the "Add Locations" tool in the Network Analyst Toolbox. From the O-D matrix
+FCA scores and other accessibility metrics are computed and the results placed in a ArcGIS table for consumption.
+
+Further instructions are provided in accompanying documenation.
+
+Click the right-arrow to begin...

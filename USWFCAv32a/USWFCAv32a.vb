@@ -7,7 +7,7 @@
     Protected Overrides Sub OnClick()
 
         'Display Input Form 1, passing through configObj
-        Dim p_s1frmNetworkLayers As New s1_frmNetworkLayer(configObj)
+        Dim p_s1frmNetworkLayers As New s1_frmIntroduction(configObj)
         p_s1frmNetworkLayers.Show()
 
     End Sub
