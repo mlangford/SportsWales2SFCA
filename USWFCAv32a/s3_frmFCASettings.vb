@@ -34,7 +34,7 @@ Public Class s3_frmFCASettings
         configObj.NWdefCutOff = 0.0
         configObj.NWscale = 1.0
 
-        'redisplay previous form
+        'display previous form
         Dim p_s2frmSupplyDemand As New s2_frmSupplyDemand(configObj)
         p_s2frmSupplyDemand.Location = Me.Location
         p_s2frmSupplyDemand.Show()
@@ -58,13 +58,6 @@ Public Class s3_frmFCASettings
             Return
         End Try
 
-        'Try
-        '    configObj.NWscale = Convert.ToDouble(cboScale.Text)
-        'Catch ex As Exception
-        '    MessageBox.Show("*ERROR* in scaling factor")
-        '    Return
-        'End Try
-
         'display next form
         Dim p_s4frmParameters As New s4_frmParameters(configObj)
         p_s4frmParameters.Location = Me.Location
@@ -87,14 +80,14 @@ Public Class s3_frmFCASettings
 
 #Region "formLoad configuration"
 
-    Private Sub s3_frmDemandDetails_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+    Private Sub s3_frmNetworkLayers_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
 
         'get list of NetWork Dataset names/index positions
         m_NWlayers = fcaUtilities.getNWLayers()
 
         'if no Network Data layer is present, issue warning and prevent further progress
         If m_NWlayers.Count = 0 Then
-            MessageBox.Show("**Error** - no layers containing a Network Dataset were identified", "**ERROR**", _
+            MessageBox.Show("**Error** - no layer containing a Network Dataset is identified", "**ERROR**", _
                        MessageBoxButtons.OK, MessageBoxIcon.Error)
             cboNWdataset.SelectedIndex = -1
             btn3Next.Enabled = False
@@ -106,97 +99,7 @@ Public Class s3_frmFCASettings
             cboNWdataset.Items.Add(NWlayer.title)
         Next
         cboNWdataset.SelectedIndex = 0
-        grpImpedance.Enabled = True
         btn3Next.Enabled = True
-
-
-
-        'get List of all Point data layers in current map (excluding selected Supply layer)
-        m_Pointlayers = fcaUtilities.getPointlayers(configObj.SupplyLayerIndex)
-
-        'populate dropdown with names of all Point data layers
-        If m_Pointlayers.Count > 0 Then
-            For Each list_item As layerItem In m_Pointlayers
-                cboDemandPointsLayer.Items.Add(list_item.title)
-            Next
-            cboDemandPointsLayer.SelectedIndex = 0
-            btn3Next.Enabled = True
-        Else
-            'if no Point data layer present issue warning message
-            MessageBox.Show("**Error** - no layers containing point objects identified", _
-                                            "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            btn3Next.Enabled = False
-        End If
-    End Sub
-
-#End Region
-
-#Region "user selects a Demand points layer"
-
-    Private Sub cboOriginLocations_SelectedIndexChanged(sender As System.Object, e As System.EventArgs)
-
-        Dim pMxDoc As IMxDocument = My.ArcMap.Application.Document
-        Dim pMap As IMap = pMxDoc.FocusMap
-
-        Dim PFLayer As IFeatureLayer2 = Nothing
-        Dim pFS As IFeatureSelection = Nothing
-        Dim pSS As ISelectionSet2 = Nothing
-
-        'determine if a Selection Set is present in selected Layer
-        PFLayer = pMap.Layer(m_Pointlayers(cboDemandPointsLayer.SelectedIndex).position)
-        pFS = PFLayer
-        pSS = pFS.SelectionSet
-
-        'if yes, allow selected features to be specified
-        'if not, disable the selected features option
-        If pSS.Count > 0 Then
-            chkDmdSel.Enabled = True
-        Else
-            chkDmdSel.Enabled = False
-            chkDmdSel.Checked = False
-        End If
-
-        'get list of field names that may represent a demand volume
-        Dim layer_item As layerItem = m_Pointlayers(cboDemandPointsLayer.SelectedIndex)
-        m_Fieldlist = fcaUtilities.getDatafields(layer_item.position)
-
-        'populate dropdown with these names and select first item
-        If m_Fieldlist.Count > 0 Then
-            TextBox2.Enabled = True
-            chkDemandField.Enabled = True
-            chkDemandField.Checked = True
-            cboDecayModel.Items.Clear()
-            For Each field_item As layerItem In m_Fieldlist
-                cboDemandField.Items.Add(field_item.title)
-            Next
-            cboDecayModel.SelectedIndex = 0
-        Else
-            'or issue a warning message (provided this is not on form load)
-            TextBox2.Enabled = False
-            chkDemandField.Enabled = False
-            chkDemandField.Checked = False
-            cboDecayModel.SelectedIndex = 0
-            MessageBox.Show("Selected Demand layer has no suitable fields for the" & Environment.NewLine _
-                                       & "  Demand Volume information: field selection disabled", _
-                                                           "*Information*", MessageBoxButtons.OK, MessageBoxIcon.Error)
-
-        End If
-
-    End Sub
-
-#End Region
-
-#Region "demand volume field is requested"
-
-    Private Sub chkDemandField_CheckedChanged(sender As System.Object, e As System.EventArgs)
-
-        If Not chkDemandField.Checked Then
-            TextBox2.Enabled = False
-            cboDecayModel.Enabled = False
-        Else
-            TextBox2.Enabled = True
-            cboDecayModel.Enabled = True
-        End If
 
     End Sub
 
@@ -221,7 +124,7 @@ Public Class s3_frmFCASettings
         pNWLayer = pLayer
         pNWdataset = pNWLayer.NetworkDataset
 
-        'get Cost attributes and populate drop-down-list
+        'get Cost attributes and populate the drop-down-list
         cboCostField.Items.Clear()
         m_costFieldUnits.Clear()
         Try
@@ -235,11 +138,9 @@ Public Class s3_frmFCASettings
             If pNWdataset.AttributeCount > 0 Then
                 'set Cost field as the first list item
                 cboCostField.SelectedIndex = 0
-                lblUnits.Visible = True
-                grpFCAscaling.Enabled = True
             Else
                 'if no cost field, issue warning message and prevent further progress
-                MessageBox.Show("**Error** - no Cost field was found in selected Network Dataset", _
+                MessageBox.Show("**Error** - no Cost field found in the selected Network Dataset", _
                                                 "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 btn3Next.Enabled = False
             End If

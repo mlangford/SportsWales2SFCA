@@ -526,13 +526,13 @@ Public Class s5_frmResults
             Windows.Forms.MessageBox.Show(ex.Message)
         End Try
 
-        Dim f2 As New Form2
-        f2.Show()
-        'display demands on each supply point
-        Dim pair As KeyValuePair(Of Integer, Double)
-        For Each pair In demandTotals
-            f2.TextBox1.AppendText(pair.Key.ToString + " , " + pair.Value.ToString + Environment.NewLine)
-        Next
+        'Dim f2 As New Form2
+        'f2.Show()
+        ''display demands on each supply point
+        'Dim pair As KeyValuePair(Of Integer, Double)
+        'For Each pair In demandTotals
+        '    f2.TextBox1.AppendText(pair.Key.ToString + " , " + pair.Value.ToString + Environment.NewLine)
+        'Next
       
 
         ' ** FCA Step2 - calculate availability scores at each demand point **
