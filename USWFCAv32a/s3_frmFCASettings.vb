@@ -49,19 +49,20 @@ Public Class s3_frmFCASettings
         configObj.NWlayerindex = list_item.position
         configObj.NWimpedanceField = cboCostField.Text
 
-        'store FCA threshold size and score scaling factor in configObj
-        Try
-            configObj.NWdefCutOff = Convert.ToDouble(txtCutOff.Text)
-        Catch ex As Exception
-            MessageBox.Show("- unable to read FCA dimensions setting as a valid numeric input" & Environment.NewLine _
-                                            & ex.Message, "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Return
-        End Try
+        'store FCA method
+        If (cboDecayModel.SelectedIndex = 0) Then
+            configObj.filter = decayType.Classic
+        Else
+            configObj.filter = decayType.Linear
+        End If
+
+        'store FC threshold size
+        configObj.NWdefCutOff = Convert.ToDouble(txtCutOff.Text)
 
         'display next form
-        Dim p_s4frmParameters As New s4_frmParameters(configObj)
-        p_s4frmParameters.Location = Me.Location
-        p_s4frmParameters.Show()
+        Dim p_s4frmRun As New s4_frmRun(configObj)
+        p_s4frmRun.Location = Me.Location
+        p_s4frmRun.Show()
         Me.Dispose()
 
     End Sub
@@ -76,34 +77,37 @@ Public Class s3_frmFCASettings
     'list of units for 'Cost' type attributes in the chosen network dataset
     Dim m_costFieldUnits As ArrayList = New ArrayList
 
+    'flag to indicate if entered threshold value is valid
+    Dim cutoffOK As Boolean = False
+
 #End Region
 
 #Region "formLoad configuration"
 
     Private Sub s3_frmNetworkLayers_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
 
-        'get list of NetWork Dataset names/index positions
+        'get a list of Network data layers in the current map
         m_NWlayers = fcaUtilities.getNWLayers()
 
-        'if no Network Data layer is present, issue warning and prevent further progress
-        If m_NWlayers.Count = 0 Then
-            MessageBox.Show("**Error** - no layer containing a Network Dataset is identified", "**ERROR**", _
-                       MessageBoxButtons.OK, MessageBoxIcon.Error)
-            cboNWdataset.SelectedIndex = -1
-            btn3Next.Enabled = False
-            Return
+        If m_NWlayers.Count > 0 Then
+            'populate the network dataset selection dropdown with this list
+            For Each NWlayer As layerItem In m_NWlayers
+                cboNWdataset.Items.Add(NWlayer.title)
+            Next
+            cboNWdataset.SelectedIndex = 0
+        Else
+            'or if no Network data layers are present, then issue a warning message
+            MessageBox.Show("**Error** - there are no layers containing a network dataset", _
+                                         "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End If
 
-        'populate dropdown with the Network Dataset names
-        For Each NWlayer As layerItem In m_NWlayers
-            cboNWdataset.Items.Add(NWlayer.title)
-        Next
-        cboNWdataset.SelectedIndex = 0
-        btn3Next.Enabled = True
+        checkComplete()
 
     End Sub
 
 #End Region
+
+#Region "user selects Network dataset"
 
     Private Sub cboNWdataset_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboNWdataset.SelectedIndexChanged
 
@@ -124,10 +128,12 @@ Public Class s3_frmFCASettings
         pNWLayer = pLayer
         pNWdataset = pNWLayer.NetworkDataset
 
-        'get Cost attributes and populate the drop-down-list
-        cboCostField.Items.Clear()
-        m_costFieldUnits.Clear()
+        'get all Cost attributes and populate dropdown
         Try
+
+            cboCostField.Items.Clear()
+            m_costFieldUnits.Clear()
+
             For i As Integer = 0 To pNWdataset.AttributeCount - 1
                 networkAttribute = pNWdataset.Attribute(i)
                 If networkAttribute.UsageType = esriNetworkAttributeUsageType.esriNAUTCost Then
@@ -135,18 +141,56 @@ Public Class s3_frmFCASettings
                     m_costFieldUnits.Add(networkAttribute.Units.ToString)
                 End If
             Next
+
             If pNWdataset.AttributeCount > 0 Then
-                'set Cost field as the first list item
+                'set Cost field to first item
                 cboCostField.SelectedIndex = 0
             Else
-                'if no cost field, issue warning message and prevent further progress
+                'or if no cost field is present, issue a warning message
                 MessageBox.Show("**Error** - no Cost field found in the selected Network Dataset", _
                                                 "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                btn3Next.Enabled = False
+                cboCostField.SelectedIndex = -1
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Codeblock NW Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+
+        checkComplete()
+
+    End Sub
+
+#End Region
+
+    'Cause a Leave event if the return key is pressed
+    Private Sub txtCutOff_KeyPress(sender As System.Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtCutOff.KeyPress
+        If (e.KeyChar = Convert.ToChar(Keys.Return)) Then
+            txtCutOff_Leave(sender, e)
+        End If
+    End Sub
+
+    'Validate the catchment threshold value on Leave event
+    Private Sub txtCutOff_Leave(sender As System.Object, e As System.EventArgs) Handles txtCutOff.Leave
+        Try
+            Dim d As Double = Convert.ToDouble(txtCutOff.Text)
+            cutoffOK = (d > 0.0)
+            If Not cutoffOK Then
+                MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine, _
+                                            "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                cutoffOK = False
             End If
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Codeblock1 Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine _
+                                            & ex.Message, "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            cutoffOK = False
         End Try
+        checkComplete()
+    End Sub
+
+    Private Sub checkComplete()
+        Dim ok As Boolean = (cboNWdataset.SelectedIndex > -1) And (cboCostField.SelectedIndex > -1) _
+                                And (cboDecayModel.SelectedIndex > -1) And cutoffOK
+        btn3Next.Enabled = ok
     End Sub
 
 End Class

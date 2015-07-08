@@ -54,4 +54,9 @@ Public Class s1_frmIntroduction
 
 #End Region
 
+    Private Sub btnABOUT_Click(sender As System.Object, e As System.EventArgs) Handles btnAbout.Click
+        Dim f As New frmAbout
+        f.ShowDialog()
+    End Sub
+
 End Class

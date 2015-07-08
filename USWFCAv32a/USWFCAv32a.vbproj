@@ -111,6 +111,12 @@
     <Compile Include="configParams.vb" />
     <Compile Include="fcaNAutils.vb" />
     <Compile Include="fcaUtilities.vb" />
+    <Compile Include="frmActivityLog.Designer.vb">
+      <DependentUpon>frmActivityLog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmActivityLog.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmAbout.Designer.vb">
       <DependentUpon>frmAbout.vb</DependentUpon>
     </Compile>
@@ -134,6 +140,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmActivityLog.resx">
+      <DependentUpon>frmActivityLog.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmAbout.resx">
       <DependentUpon>frmAbout.vb</DependentUpon>
     </EmbeddedResource>
@@ -152,11 +161,8 @@
     <EmbeddedResource Include="s3_frmFCASettings.resx">
       <DependentUpon>s3_frmFCASettings.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="s4_frmParameters.resx">
-      <DependentUpon>s4_frmParameters.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="s5_frmResults..resx">
-      <DependentUpon>s5_frmResults..vb</DependentUpon>
+    <EmbeddedResource Include="s4_frmRun.resx">
+      <DependentUpon>s4_frmRun.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -200,16 +206,10 @@
     <Compile Include="s3_frmFCASettings.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="s4_frmParameters.Designer.vb">
-      <DependentUpon>s4_frmParameters.vb</DependentUpon>
+    <Compile Include="s4_frmRun.Designer.vb">
+      <DependentUpon>s4_frmRun.vb</DependentUpon>
     </Compile>
-    <Compile Include="s4_frmParameters.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="s5_frmResults..Designer.vb">
-      <DependentUpon>s5_frmResults..vb</DependentUpon>
-    </Compile>
-    <Compile Include="s5_frmResults..vb">
+    <Compile Include="s4_frmRun.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="fcaStructures.vb" />

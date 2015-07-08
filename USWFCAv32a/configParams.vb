@@ -12,9 +12,6 @@
     Private m_DemandVolumeField As Integer = -1
     Private m_ResultsLoc As String = ""
     Private m_filter As decayType = decayType.Classic
-    Private m_gauss As Double = 0.0
-    Private m_bwpass As Double = 0.0
-    Private m_bwpower As Double = 0.0
 
     Public Sub New()
         MyBase.New()
@@ -107,33 +104,6 @@
         End Get
         Set(ByVal value As Integer)
             m_DemandVolumeField = value
-        End Set
-    End Property
-
-    Public Property gaussian_bw As Double
-        Get
-            Return m_gauss
-        End Get
-        Set(ByVal value As Double)
-            m_gauss = value
-        End Set
-    End Property
-
-    Public Property butterworth_pwr As Double
-        Get
-            Return m_bwpower
-        End Get
-        Set(ByVal value As Double)
-3:          m_bwpower = value
-        End Set
-    End Property
-
-    Public Property butterworth_bw As Double
-        Get
-            Return m_bwpass
-        End Get
-        Set(ByVal value As Double)
-            m_bwpass = value
         End Set
     End Property
 

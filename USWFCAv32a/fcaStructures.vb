@@ -4,8 +4,6 @@
     Public Enum decayType
         Classic
         Linear
-        Gaussian
-        Butterworth
     End Enum
 
     'Stores a layer name and corresponding index position

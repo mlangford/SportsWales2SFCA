@@ -6,7 +6,7 @@ Imports ESRI.ArcGIS.Geoprocessing
 Imports ESRI.ArcGIS.NetworkAnalyst
 Imports ESRI.ArcGIS.esriSystem
 
-Public Class s5_frmResults
+Public Class s4_frmRun
 
 #Region "form controls"
 
@@ -31,6 +31,35 @@ Public Class s5_frmResults
 
 #End Region
 
+#Region "globals"
+
+    'Folder location for the results table
+    Dim outpath As String
+
+    'List of field names in the Demand points layer
+    Dim m_FieldlistDem As List(Of layerItem)
+
+#End Region
+
+    Private Sub s5_frmResults_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+
+        Try
+            'If configuration file found with retained folder name, read and use
+            If System.IO.File.Exists("swfca-save.txt") Then
+                Dim sr As System.IO.StreamReader = New System.IO.StreamReader("swfca-save.txt")
+                outpath = sr.ReadLine()
+                sr.Close()
+                txtPath.Text = outpath
+
+            Else    'otherwise set to My Documents folder
+                txtPath.Text = My.Computer.FileSystem.SpecialDirectories.MyDocuments
+            End If
+        Catch ex As Exception
+            txtPath.Text = My.Computer.FileSystem.SpecialDirectories.MyDocuments
+        End Try
+
+    End Sub
+
 #Region "computes accessibility scores"
 
     Private Sub btnExecute_Click(sender As System.Object, e As System.EventArgs) Handles btnExecute.Click
@@ -48,9 +77,16 @@ Public Class s5_frmResults
 
         Dim inputFL As IFeatureLayer = Nothing
         Dim inputFC As IFeatureClass = Nothing
+        Dim f2 As frmActivityLog = Nothing
 
         btnExecute.Enabled = False
-        lstOutput.Items.Add("Network Analyst messages:")
+        btn4Prev.Enabled = False
+        If chkShowlog.Checked Then
+            f2 = New frmActivityLog
+            f2.Show()
+        End If
+
+        If chkShowlog.Checked Then f2.txtLog.AppendText("Network Analyst messages:" & vbCrLf)
         pMxDoc.CurrentContentsView = pMxDoc.ContentsView(0)   'set TOC to "Contents View tab"
 
         'track from layer -> network layer -> network dataset
@@ -64,7 +100,7 @@ Public Class s5_frmResults
         'set NAContext as a ClosestFacility solver
         pNAContext1 = fcaNAcreateClosestsolver(pNWdataset)
 
-        Label2.Text = "1. Loading data for 'Closest Facility'"
+        Label1.Text = "1/6 loading data for closest facility analysis"
         System.Windows.Forms.Application.DoEvents()
 
         'create and configure Network Analyst layer
@@ -107,46 +143,48 @@ Public Class s5_frmResults
         gp.Execute("AddLocations_na", params, Nothing)
 
         'solve network analyst Closest Facility problem
-        Label2.Text = "2. Solving for 'Closest Facility'..."
+        Label1.Text = "2/6 solving closest facility analysis"
         System.Windows.Forms.Application.DoEvents()
-
         fcaNAsetClosestsolver(pNAContext1, configObj)
-        Dim gpMessages1 As IGPMessages = New GPMessages
-        Dim isPartial As Boolean
+
         Try
+            Dim gpMessages1 As IGPMessages = New GPMessages
+            Dim isPartial As Boolean
             isPartial = pNAContext1.Solver.Solve(pNAContext1, gpMessages1, Nothing)
             If isPartial Then
-                lstOutput.Items.Add("Closest Facility  ...a partial solution was found.")
+                If chkShowlog.Checked Then f2.txtLog.AppendText("Closest Facility  ...partial solution found" & vbCrLf)
             Else
-                lstOutput.Items.Add("Closest Facility  ...a FULL solution was found.")
+                If chkShowlog.Checked Then f2.txtLog.AppendText("Closest Facility  ...full solution found" & vbCrLf)
             End If
+
+            'display returned messages
+            If chkShowlog.Checked Then
+                If Not gpMessages1 Is Nothing Then
+                    For i As Integer = 0 To gpMessages1.Count - 1
+                        Select Case gpMessages1.GetMessage(i).Type
+                            Case esriGPMessageType.esriGPMessageTypeError
+                                f2.txtLog.AppendText("Error: " & gpMessages1.GetMessage(i).ErrorCode.ToString() & " " & gpMessages1.GetMessage(i).Description & vbCrLf)
+                            Case esriGPMessageType.esriGPMessageTypeWarning
+                                f2.txtLog.AppendText("Warning: " + gpMessages1.GetMessage(i).Description & vbCrLf)
+                            Case Else
+                                f2.txtLog.AppendText("Information: " + gpMessages1.GetMessage(i).Description & vbCrLf)
+                        End Select
+                    Next
+                End If
+            End If
+
         Catch ex As Exception
-            lstOutput.Items.Add("")
-            lstOutput.Items.Add("Network Analyst Error Message: ")
-            lstOutput.Items.Add(ex.Message)
+            If chkShowlog.Checked Then f2.txtLog.AppendText(vbCrLf & "Network Analyst Error Message:" & vbCrLf & ex.Message & vbCrLf)
         End Try
 
-        'display returned messages
-        If Not gpMessages1 Is Nothing Then
-            For i As Integer = 0 To gpMessages1.Count - 1
-                Select Case gpMessages1.GetMessage(i).Type
-                    Case esriGPMessageType.esriGPMessageTypeError
-                        lstOutput.Items.Add("Error: " + gpMessages1.GetMessage(i).ErrorCode.ToString() + " " + gpMessages1.GetMessage(i).Description)
-                    Case esriGPMessageType.esriGPMessageTypeWarning
-                        lstOutput.Items.Add("Warning: " + gpMessages1.GetMessage(i).Description)
-                    Case Else
-                        lstOutput.Items.Add("Information: " + gpMessages1.GetMessage(i).Description)
-                End Select
-            Next
-        End If
-
+        If True Then Return
 
         '** OD solving **
 
         'set NAContext as a OD matrix solver
         pNAContext2 = fcaNAcreateODsolver(pNWdataset)
 
-        Label2.Text = "3. Loading data for 'O-D matrix'..."
+        Label1.Text = "3/6 loading data for O-D matrix computation"
         System.Windows.Forms.Application.DoEvents()
 
         'create and configure Network Analyst layer
@@ -186,37 +224,40 @@ Public Class s5_frmResults
         gp.Execute("AddLocations_na", params, Nothing)
 
         'solve network analyst OD Matrix problem
-        Label2.Text = "4. Solving for 'OD matrix'"
+        Label1.Text = "4/6 solving O-D matrix conputation"
         System.Windows.Forms.Application.DoEvents()
-
         fcaNAsetODsolver(pNAContext2, configObj)
-        Dim gpMessages2 As IGPMessages = New GPMessages
-        Try
-            isPartial = pNAContext2.Solver.Solve(pNAContext2, gpMessages2, Nothing)
-            If isPartial Then
-                lstOutput.Items.Add("OD Matrix         ...a partial solution was found.")
-            Else
-                lstOutput.Items.Add("OD Matrix         ...a FULL solution was found.")
-            End If
-        Catch ex As Exception
-            lstOutput.Items.Add("")
-            lstOutput.Items.Add("Network Analyst error message: ")
-            lstOutput.Items.Add(ex.Message)
-        End Try
 
-        'display returned messages
-        If Not gpMessages2 Is Nothing Then
-            For i As Integer = 0 To gpMessages2.Count - 1
-                Select Case gpMessages2.GetMessage(i).Type
-                    Case esriGPMessageType.esriGPMessageTypeError
-                        lstOutput.Items.Add("Error: " + gpMessages2.GetMessage(i).ErrorCode.ToString() + " " + gpMessages2.GetMessage(i).Description)
-                    Case esriGPMessageType.esriGPMessageTypeWarning
-                        lstOutput.Items.Add("Warning: " + gpMessages2.GetMessage(i).Description)
-                    Case Else
-                        lstOutput.Items.Add("Information: " + gpMessages2.GetMessage(i).Description)
-                End Select
-            Next
-        End If
+        Try
+            Dim gpMessages2 As IGPMessages = New GPMessages
+            Dim isPartial As Boolean = pNAContext2.Solver.Solve(pNAContext2, gpMessages2, Nothing)
+            If isPartial Then
+                If chkShowlog.Checked Then f2.txtLog.AppendText("OD Matrix         ...partial solution found" & vbCrLf)
+            Else
+                If chkShowlog.Checked Then f2.txtLog.AppendText("OD Matrix         ...full solution  found" & vbCrLf)
+            End If
+
+            'display returned messages
+            If chkShowlog.Checked Then
+                If Not gpMessages2 Is Nothing Then
+                    For i As Integer = 0 To gpMessages2.Count - 1
+                        Select Case gpMessages2.GetMessage(i).Type
+                            Case esriGPMessageType.esriGPMessageTypeError
+                                f2.txtLog.AppendText("Error: " & gpMessages2.GetMessage(i).ErrorCode.ToString() & " " & gpMessages2.GetMessage(i).Description & vbCrLf)
+                            Case esriGPMessageType.esriGPMessageTypeWarning
+                                f2.txtLog.AppendText("Warning: " & gpMessages2.GetMessage(i).Description & vbCrLf)
+                            Case Else
+                                f2.txtLog.AppendText("Information: " & gpMessages2.GetMessage(i).Description & vbCrLf)
+                        End Select
+                    Next
+                End If
+            End If
+
+        Catch ex As Exception
+            If chkShowlog.Checked Then
+                f2.txtLog.AppendText(vbCrLf & "Network Analyst error message: " & ex.Message & vbCrLf)
+            End If
+        End Try
 
 
         '** accessibility scores computation **
@@ -340,17 +381,17 @@ Public Class s5_frmResults
             pTableCollection.AddTable(pOutputTable)
             pMxDoc.UpdateContents()
         Catch ex As Exception
-            lstOutput.Items.Add("Error: Unable to create the output table " & outputTable)
+            If chkShowlog.Checked Then f2.txtLog.AppendText("Error: Unable to create output table " & outputTable & vbCrLf)
             Exit Sub
         End Try
 
-        Label2.Text = "5. Computing results for 'Closest Facility'"
+        Label2.Text = "5/6 computing closest facility metrics"
         System.Windows.Forms.Application.DoEvents()
 
         'access the Closest Facility results table
         pCFtable = pNAContext1.NAClasses.ItemByName("CFRoutes")
         If pCFtable Is Nothing Then
-            lstOutput.Items.Add("Error: Unable to access Closest Facility 'Routes' table")
+            If chkShowlog.Checked Then f2.txtLog.AppendText("Error: Unable to access Closest Facility 'Routes' table" & vbCrLf)
             Exit Sub
         End If
 
@@ -455,11 +496,11 @@ Public Class s5_frmResults
         'access the OD matrix results table
         pODLinesTable = pNAContext2.NAClasses.ItemByName("ODLines")
         If pODLinesTable Is Nothing Then
-            lstOutput.Items.Add("Error: Unable to access the OD Matrix 'Lines' table")
+            If chkShowlog.Checked Then f2.txtLog.AppendText("Error: Unable to access the OD Matrix 'Lines' table" & vbCrLf)
             Exit Sub
         End If
 
-        Label2.Text = "6. Computing FCA results from 'OD matrix'"
+        Label1.Text = "6/6 computing FCA metrics - step 1"
         System.Windows.Forms.Application.DoEvents()
 
         'dictionary for Step 1 results (i.e. total service demand at each supply point)
@@ -526,18 +567,11 @@ Public Class s5_frmResults
             Windows.Forms.MessageBox.Show(ex.Message)
         End Try
 
-        'Dim f2 As New Form2
-        'f2.Show()
-        ''display demands on each supply point
-        'Dim pair As KeyValuePair(Of Integer, Double)
-        'For Each pair In demandTotals
-        '    f2.TextBox1.AppendText(pair.Key.ToString + " , " + pair.Value.ToString + Environment.NewLine)
-        'Next
-      
 
         ' ** FCA Step2 - calculate availability scores at each demand point **
 
         'dictionary for Step 2 results (i.e. sum of Step1 scores at each demand point)
+        Label1.Text = "6/6 computing FCA metrics - step 2"
         Dim demandList As New Dictionary(Of Integer, destObj)
         Try
             'create a pointer (inputFC) to the supply points Feature Class table
@@ -621,27 +655,13 @@ Public Class s5_frmResults
             MsgBox(ex.Message)
         End Try
 
-        Label2.Text = "FCA computation completed." & Environment.NewLine _
-                          & "results stored in dbf file..." & Environment.NewLine _
-                          & outputTable + Environment.NewLine
+        System.Windows.Forms.MessageBox.Show("Computation completed." & vbCrLf & "results stored in dbf file..." & vbCrLf & outputTable, _
+                                             "Complete", Windows.Forms.MessageBoxButtons.OK, Windows.Forms.MessageBoxIcon.Information)
 
         System.Runtime.InteropServices.Marshal.ReleaseComObject(pOutputTable)
         pMxDoc.CurrentContentsView = pMxDoc.ContentsView(1)
-        chkTidyUp.Visible = True
-        btnClose.Enabled = True
 
-    End Sub
-
-#End Region
-
-#Region "remove the working layers"
-
-    Private Sub btnClose_Click(sender As System.Object, e As System.EventArgs) Handles btnClose.Click
-
-        If chkTidyUp.Checked Then
-            Dim pMxDoc As IMxDocument = My.ArcMap.Application.Document
-            Dim pMap As IMap = pMxDoc.FocusMap
-            Dim pLayer As INALayer = Nothing
+        If Not chkKeepNAworkings.Checked Then
             pLayer = pMap.Layer(pMap.LayerCount - 1)
             If Not pLayer Is Nothing Then
                 pMap.DeleteLayer(pLayer)
@@ -652,10 +672,81 @@ Public Class s5_frmResults
             End If
         End If
 
-        Me.Dispose()
+        Try
+            Dim sw As System.IO.StreamWriter = New System.IO.StreamWriter("swfca-save.txt")
+            sw.Write(txtPath.Text)
+            sw.Close()
+        Catch
+            'txtPath.Text = My.Computer.FileSystem.SpecialDirectories.MyDocuments
+        End Try
 
     End Sub
 
 #End Region
+
+    Private Sub txtPath_DoubleClick(sender As System.Object, e As System.EventArgs) Handles txtPath.DoubleClick
+        'select path for output table using FolderBrowser dialog
+        FolderBrowserDialog1.SelectedPath = My.Computer.FileSystem.SpecialDirectories.MyDocuments
+        If FolderBrowserDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
+            txtPath.Text = FolderBrowserDialog1.SelectedPath
+            outpath = txtPath.Text
+        End If
+    End Sub
+
+    Private Sub btn4Prev_Click(sender As System.Object, e As System.EventArgs) Handles btn4Prev.Click
+
+        Try
+            Dim sw As System.IO.StreamWriter = New System.IO.StreamWriter("swfca-save.txt")
+            sw.Write(txtPath.Text)
+            sw.Close()
+        Catch ex As Exception
+            'txtPath.Text = My.Computer.FileSystem.SpecialDirectories.MyDocuments
+        End Try
+
+        'display previous form
+        Dim p_s3frmFCASettings As New s3_frmFCASettings(configObj)
+        p_s3frmFCASettings.Location = Me.Location
+        p_s3frmFCASettings.Show()
+        Me.Dispose()
+
+    End Sub
+
+    Private Sub chkdemandID_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkdemandID.CheckedChanged
+
+        If chkdemandID.Checked Then
+
+            'get a list of all field names in the Demand point layer
+            Dim pMxDoc As IMxDocument = My.ArcMap.Application.Document
+            Dim pMap As IMap = pMxDoc.FocusMap
+            Dim layer_item As layerItem
+            layer_item.position = configObj.DemandLayerIndex
+            m_FieldlistDem = fcaUtilities.getDatafields3(layer_item.position)
+            If m_FieldlistDem.Count > 0 Then
+                'populate the selection dropdown with this list
+                cboDemandIDField.Items.Clear()
+                For Each field_item As layerItem In m_FieldlistDem
+                    cboDemandIDField.Items.Add(field_item.title)
+                Next
+                'set the field selection to the first item in the list
+                cboDemandIDField.SelectedIndex = 0
+            End If
+        Else
+            cboDemandIDField.Items.Clear()
+            cboDemandIDField.ResetText()
+            cboDemandIDField.SelectedIndex = -1
+        End If
+    End Sub
+
+    Private Sub radFilename(sender As System.Object, e As System.EventArgs) Handles radSpecify.CheckedChanged, radAuto.CheckedChanged
+        If radSpecify.Checked Then
+            txtFilename.Enabled = True
+        Else
+            txtFilename.Enabled = False
+        End If
+    End Sub
+
+    Private Sub Button1_Click(sender As System.Object, e As System.EventArgs) Handles Button1.Click
+        showconfigParams(configObj)
+    End Sub
 
 End Class
