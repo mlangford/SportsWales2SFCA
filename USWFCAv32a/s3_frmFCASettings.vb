@@ -101,6 +101,7 @@ Public Class s3_frmFCASettings
                                          "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End If
 
+        cboDecayModel.SelectedIndex = 0
         checkComplete()
 
     End Sub
@@ -162,30 +163,23 @@ Public Class s3_frmFCASettings
 
 #End Region
 
-    'Cause a Leave event if the return key is pressed
-    Private Sub txtCutOff_KeyPress(sender As System.Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtCutOff.KeyPress
-        If (e.KeyChar = Convert.ToChar(Keys.Return)) Then
-            txtCutOff_Leave(sender, e)
-        End If
-    End Sub
-
     'Validate the catchment threshold value on Leave event
-    Private Sub txtCutOff_Leave(sender As System.Object, e As System.EventArgs) Handles txtCutOff.Leave
-        Try
-            Dim d As Double = Convert.ToDouble(txtCutOff.Text)
-            cutoffOK = (d > 0.0)
-            If Not cutoffOK Then
-                MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine, _
-                                            "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                cutoffOK = False
-            End If
-        Catch ex As Exception
-            MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine _
-                                            & ex.Message, "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            cutoffOK = False
-        End Try
-        checkComplete()
-    End Sub
+    'Private Sub txtCutOff_Leave(sender As System.Object, e As System.EventArgs) Handles txtCutOff.Leave
+    '    Try
+    '        Dim d As Double = Convert.ToDouble(txtCutOff.Text)
+    '        cutoffOK = (d > 0.0)
+    '        If Not cutoffOK Then
+    '            MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine, _
+    '                                        "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    '            cutoffOK = False
+    '        End If
+    '    Catch ex As Exception
+    '        MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine _
+    '                                        & ex.Message, "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    '        cutoffOK = False
+    '    End Try
+    '    checkComplete()
+    'End Sub
 
     Private Sub checkComplete()
         Dim ok As Boolean = (cboNWdataset.SelectedIndex > -1) And (cboCostField.SelectedIndex > -1) _
@@ -193,4 +187,8 @@ Public Class s3_frmFCASettings
         btn3Next.Enabled = ok
     End Sub
 
+    Private Sub txtCutOff_TextChanged(sender As System.Object, e As System.EventArgs) Handles txtCutOff.TextChanged
+        Double.TryParse(txtCutOff.Text, cutoffOK)
+        checkComplete()
+    End Sub
 End Class

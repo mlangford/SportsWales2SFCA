@@ -222,6 +222,7 @@ Partial Class s2_frmSupplyDemand
         Me.Name = "s2_frmSupplyDemand"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "SW-FCA - Page 2/4"
+        Me.TopMost = True
         Me.GroupBox2.ResumeLayout(False)
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()

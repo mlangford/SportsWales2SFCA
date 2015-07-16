@@ -11,6 +11,7 @@ Public Class s4_frmRun
 #Region "form controls"
 
     Private m_configObj As configParams
+    Dim demandID As Object
 
     'Handles passing of the configObject through the forms
     Public Property configObj() As configParams
@@ -58,6 +59,8 @@ Public Class s4_frmRun
             txtPath.Text = My.Computer.FileSystem.SpecialDirectories.MyDocuments
         End Try
 
+        cboScale.SelectedIndex = 3
+
     End Sub
 
 #Region "computes accessibility scores"
@@ -87,78 +90,82 @@ Public Class s4_frmRun
         End If
 
         If chkShowlog.Checked Then f2.txtLog.AppendText("Network Analyst messages:" & vbCrLf)
-        pMxDoc.CurrentContentsView = pMxDoc.ContentsView(0)   'set TOC to "Contents View tab"
+        Dim ScaleFactor As Double = Convert.ToDouble(cboScale.Text)
+
+        'set the TOC to the "Contents View tab"
+        pMxDoc.CurrentContentsView = pMxDoc.ContentsView(0)
 
         'track from layer -> network layer -> network dataset
         pLayer = pMap.Layer(configObj.NWlayerindex)
         pNWLayer = pLayer
         pNWdataset = pNWLayer.NetworkDataset
 
-
         '** CF solving **
+        Dim OIDname As String
 
         'set NAContext as a ClosestFacility solver
         pNAContext1 = fcaNAcreateClosestsolver(pNWdataset)
 
-        Label1.Text = "1/6 loading data for closest facility analysis"
-        System.Windows.Forms.Application.DoEvents()
+        Label1.Text = "loading data for closest facility analysis"
+        Windows.Forms.Application.DoEvents()
 
-        'create and configure Network Analyst layer
+        'create and configure the Network Analyst layer
         pNALayer = pNAContext1.Solver.CreateLayer(pNAContext1)
         pLayer = pNALayer
-        pLayer.Name = "uswFCA_" + pNAContext1.Solver.DisplayName
+        pLayer.Name = "swFCA_" + pNAContext1.Solver.DisplayName
         pMap.AddLayer(pLayer)
         pNALayer.Expanded = False
-        pMap.MoveLayer(pLayer, pMap.LayerCount - 1) 'move to bottom of ToC
+        pMap.MoveLayer(pLayer, pMap.LayerCount - 1) 'move it to the bottom of the TOC
 
-        'load Facilities (Supply) from selected Feature layer
+        'load up 'Facilities' (ie Supply) from the selected Feature layer
         pLayer = pMap.Layer(configObj.SupplyLayerIndex)
-        inputFL = pLayer
-        inputFC = inputFL.FeatureClass
-        Dim OIDname As String = inputFC.OIDFieldName
+        inputFL = pLayer                                                       'track from ILayer -> IFeatureLayer
+        inputFC = inputFL.FeatureClass                                  'track from IFeatureLayer -> IFeatureClass
+        OIDname = inputFC.OIDFieldName                            'get the name of the OID field
 
-        'create a Geoprocessor tool and parameters arrray
+        'create a Geoprocessor tool and a parameters arrray
         Dim gp As IGeoProcessor2 = New GeoProcessor
         Dim params As IVariantArray = New VarArrayClass
 
-        'fill parameters for Closest Facility tool, then add the points
+        'fill parameters for CF tool, then load the facilities (supply) points
         params.Add(pNALayer)
         params.Add("Facilities")
         params.Add(inputFL)
         params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
         gp.Execute("AddLocations_na", params, Nothing)
 
-        'load Incidents (Demand) from selected Feature Layer
+        'load up 'Incidents' (ie Demand) from the selected Feature Layer
         pLayer = pMap.Layer(configObj.DemandLayerIndex)
         inputFL = pLayer
         inputFC = inputFL.FeatureClass
         OIDname = inputFC.OIDFieldName
 
-        'refill parameters for Closest Facility tool, then add the points
+        'remove previous parameters
         params.RemoveAll()
+        'fill parameters for CF tool, then load the incidents (demand) points
         params.Add(pNALayer)
         params.Add("Incidents")
         params.Add(inputFL)
         params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
         gp.Execute("AddLocations_na", params, Nothing)
 
-        'solve network analyst Closest Facility problem
-        Label1.Text = "2/6 solving closest facility analysis"
-        System.Windows.Forms.Application.DoEvents()
+        'solve the network analyst Closest Facility problem
+        Label1.Text = "solving closest facility analysis"
+        Windows.Forms.Application.DoEvents()
         fcaNAsetClosestsolver(pNAContext1, configObj)
 
         Try
-            Dim gpMessages1 As IGPMessages = New GPMessages
-            Dim isPartial As Boolean
-            isPartial = pNAContext1.Solver.Solve(pNAContext1, gpMessages1, Nothing)
-            If isPartial Then
-                If chkShowlog.Checked Then f2.txtLog.AppendText("Closest Facility  ...partial solution found" & vbCrLf)
-            Else
-                If chkShowlog.Checked Then f2.txtLog.AppendText("Closest Facility  ...full solution found" & vbCrLf)
-            End If
 
-            'display returned messages
+            Dim gpMessages1 As IGPMessages = New GPMessages
+            Dim isPartial As Boolean = pNAContext1.Solver.Solve(pNAContext1, gpMessages1, Nothing)      'Solve CF !!
+
             If chkShowlog.Checked Then
+                If isPartial Then
+                    f2.txtLog.AppendText("Closest Facility  ...partial solution found" & vbCrLf)
+                Else
+                    f2.txtLog.AppendText("Closest Facility  ...full solution found" & vbCrLf)
+                End If
+                'display returned messages
                 If Not gpMessages1 Is Nothing Then
                     For i As Integer = 0 To gpMessages1.Count - 1
                         Select Case gpMessages1.GetMessage(i).Type
@@ -174,71 +181,73 @@ Public Class s4_frmRun
             End If
 
         Catch ex As Exception
-            If chkShowlog.Checked Then f2.txtLog.AppendText(vbCrLf & "Network Analyst Error Message:" & vbCrLf & ex.Message & vbCrLf)
+            If chkShowlog.Checked Then f2.txtLog.AppendText(vbCrLf & "Network Analyst error message:" & vbCrLf & ex.Message & vbCrLf)
         End Try
 
-        If True Then Return
 
-        '** OD solving **
+        ''** OD solving **
 
         'set NAContext as a OD matrix solver
         pNAContext2 = fcaNAcreateODsolver(pNWdataset)
 
-        Label1.Text = "3/6 loading data for O-D matrix computation"
-        System.Windows.Forms.Application.DoEvents()
+        Label1.Text = "loading data for OD matrix computation"
+        Windows.Forms.Application.DoEvents()
 
-        'create and configure Network Analyst layer
+        'create and configure the Network Analyst layer
         pNALayer = pNAContext2.Solver.CreateLayer(pNAContext2)
         pLayer = pNALayer
-        pLayer.Name = "uswFCA_" + pNAContext2.Solver.DisplayName
+        pLayer.Name = "swFCA_" + pNAContext2.Solver.DisplayName
         pMap.AddLayer(pLayer)
         pNALayer.Expanded = False
-        pMap.MoveLayer(pLayer, pMap.LayerCount - 1)
+        pMap.MoveLayer(pLayer, pMap.LayerCount - 1) 'move it to the bottom of the TOC
 
-        'load Origins (Supply) from selected Feature Layer
+        'load the 'Origins' (ie Supply) from the selected Feature Layer
         pLayer = pMap.Layer(configObj.SupplyLayerIndex)
         inputFL = pLayer
         inputFC = inputFL.FeatureClass
         OIDname = inputFC.OIDFieldName
 
-        'fill parameters for OD matrix tool, then add the points
+        'remove previous parameters
         params.RemoveAll()
+        'fill parameters for OD tool, then load the Origin (supply) points
         params.Add(pNALayer)
         params.Add("Origins")
         params.Add(inputFL)
         params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
         gp.Execute("AddLocations_na", params, Nothing)
 
-        'load Destinations (Demand) from selected Feature Layer
+        'load the 'Destinations' (ie Demand) from the selected Feature Layer
         pLayer = pMap.Layer(configObj.DemandLayerIndex)
         inputFL = pLayer
         inputFC = inputFL.FeatureClass
         OIDname = inputFC.OIDFieldName
 
-        'refill parameters for OD matrix tool, then add the points
+        'remove previous parameters
         params.RemoveAll()
+        'fill parameters for OD tool, then load the Destination (demand) points
         params.Add(pNALayer)
         params.Add("Destinations")
         params.Add(inputFL)
         params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
         gp.Execute("AddLocations_na", params, Nothing)
 
-        'solve network analyst OD Matrix problem
-        Label1.Text = "4/6 solving O-D matrix conputation"
-        System.Windows.Forms.Application.DoEvents()
+        'solve the network analyst OD Matrix problem
+        Label1.Text = "solving OD matrix analysis"
+        Windows.Forms.Application.DoEvents()
         fcaNAsetODsolver(pNAContext2, configObj)
 
         Try
-            Dim gpMessages2 As IGPMessages = New GPMessages
-            Dim isPartial As Boolean = pNAContext2.Solver.Solve(pNAContext2, gpMessages2, Nothing)
-            If isPartial Then
-                If chkShowlog.Checked Then f2.txtLog.AppendText("OD Matrix         ...partial solution found" & vbCrLf)
-            Else
-                If chkShowlog.Checked Then f2.txtLog.AppendText("OD Matrix         ...full solution  found" & vbCrLf)
-            End If
 
-            'display returned messages
+            Dim gpMessages2 As IGPMessages = New GPMessages
+            Dim isPartial As Boolean = pNAContext2.Solver.Solve(pNAContext2, gpMessages2, Nothing) 'Solve OD !!
+
             If chkShowlog.Checked Then
+                If isPartial Then
+                    f2.txtLog.AppendText("OD matrix         ...partial solution found" & vbCrLf)
+                Else
+                    f2.txtLog.AppendText("OD matrix         ...full solution  found" & vbCrLf)
+                End If
+                'display returned messages
                 If Not gpMessages2 Is Nothing Then
                     For i As Integer = 0 To gpMessages2.Count - 1
                         Select Case gpMessages2.GetMessage(i).Type
@@ -254,309 +263,333 @@ Public Class s4_frmRun
             End If
 
         Catch ex As Exception
-            If chkShowlog.Checked Then
-                f2.txtLog.AppendText(vbCrLf & "Network Analyst error message: " & ex.Message & vbCrLf)
-            End If
+            If chkShowlog.Checked Then f2.txtLog.AppendText(vbCrLf & "Network Analyst error message: " & vbCrLf & ex.Message & vbCrLf)
         End Try
 
 
-        '** accessibility scores computation **
+        '** accessibility scores **
 
         Dim pDataset As IDataset = Nothing
-        Dim pDSWS As IWorkspace2 = Nothing
-        Dim pWSFactory As IWorkspaceFactory
+        Dim pDisplayTable As IDisplayTable = Nothing
+        Dim pTable As ITable = Nothing
+
+        Dim pOldFields As IFields = Nothing
+        Dim pOldField As IField = Nothing
+        Dim pNewFields As IFields = Nothing
+        Dim pNewField As IFieldEdit = Nothing
+
+        'track from Demand Points layer -> to feature layer -> to feature class -> to dataset
+        inputFL = pMap.Layer(configObj.DemandLayerIndex)
+        inputFC = inputFL.FeatureClass
+        pDataset = inputFC
+        'cast to ITable from IFeatureClass
+        pDisplayTable = inputFL
+        pTable = pDisplayTable.DisplayTable
+
+        'create a shapefile workspace factory in the user selected location
+        Dim pWSFactory As IWorkspaceFactory = New ShapefileWorkspaceFactory
         Dim pFWS As IFeatureWorkspace = Nothing
-        Dim pFieldsEdit As IFieldsEdit = Nothing
+        pFWS = pWSFactory.OpenFromFile(txtPath.Text, My.ArcMap.Application.hWnd)
 
-        Try
-
-            'track through layer -> feature layer -> feature class -> dataset -> dataset workspace
-            inputFL = pMap.Layer(configObj.DemandLayerIndex)
-            inputFC = inputFL.FeatureClass
-            pDataset = inputFC
-            pDSWS = pDataset.Workspace
-
-            'create a shapefile workspace factory
-            pWSFactory = New ShapefileWorkspaceFactory
-            pFWS = pWSFactory.OpenFromFile(configObj.ResultsLocation, My.ArcMap.Application.hWnd)
-
-            'create a Fields object
-            pFieldsEdit = New Fields
-
-            'create a Field for output table's OID
-            Dim pOIDField As IFieldEdit = New Field
-            With pOIDField
-                .Name_2 = "OID"
-                .Type_2 = esriFieldType.esriFieldTypeOID
-                .Length_2 = 8
-            End With
-            'create other output table fields
-            Dim pDemandField As IFieldEdit = New Field
-            With pDemandField
-                .Name_2 = "DemandID"
-                .Type_2 = esriFieldType.esriFieldTypeInteger
-                .Length_2 = 8
-            End With
-            Dim pSupplyField As IFieldEdit = New Field
-            With pSupplyField
-                .Name_2 = "SupplyID"
-                .Type_2 = esriFieldType.esriFieldTypeInteger
-                .Length_2 = 8
-            End With
-            Dim pNearMetric As IFieldEdit = New Field
-            With pNearMetric
-                .Name_2 = "SupplyDist"
-                .Type_2 = esriFieldType.esriFieldTypeSingle
-                .Length_2 = 14
-                .DefaultValue_2 = 0.0
-                .Precision_2 = 12
-                .Scale_2 = 4
-            End With
-            Dim pChoiceMetric As IFieldEdit = New Field
-            With pChoiceMetric
-                .Name_2 = "Choices"
-                .Type_2 = esriFieldType.esriFieldTypeSingle
-                .Length_2 = 14
-                .DefaultValue_2 = 0.0
-                .Precision_2 = 12
-                .Scale_2 = 0
-            End With
-            Dim pMeanMetric As IFieldEdit = New Field
-            With pMeanMetric
-                .Name_2 = "MeanCost"
-                .Type_2 = esriFieldType.esriFieldTypeSingle
-                .Length_2 = 14
-                .DefaultValue_2 = 0.0
-                .Precision_2 = 12
-                .Scale_2 = 2
-            End With
-            Dim pFCAMetric As IFieldEdit = New Field
-            With pFCAMetric
-                .Name_2 = "E2SFCA"
-                .Type_2 = esriFieldType.esriFieldTypeSingle
-                .Length_2 = 14
-                .DefaultValue_2 = 0.0
-                .Precision_2 = 12
-                .Scale_2 = 8
-            End With
-            'add all fields to the table
-            With pFieldsEdit
-                .AddField(pOIDField)
-                .AddField(pDemandField)
-                .AddField(pSupplyField)
-                .AddField(pNearMetric)
-                .AddField(pChoiceMetric)
-                .AddField(pMeanMetric)
-                .AddField(pFCAMetric)
-            End With
-        Catch ex As Exception
-            Windows.Forms.MessageBox.Show(ex.Message)
-        End Try
-
-        'create pointer to tables collection of current focus map
-        'and further pointers for accessing tables in this collection
+        'create a pointer to the tables collection of the current focus map
         Dim pTableCollection As ITableCollection = pMap
-        Dim pOutputTable As ITable = Nothing
-        Dim pCFtable As ITable = Nothing
-        Dim pODLinesTable As ITable = Nothing
 
-        'construct a suitable output table name... 
-        Dim outputTable As String = ""
+        'create a pointer for the results table
+        Dim pOutputTable As ITable = Nothing
+
+        'construct the results table 
+        Dim resultsTable As String = ""
         Try
-            Dim tName As String = pDataset.BrowseName
-            tName = tName.Replace(" ", "")
-            tName = tName.Substring(0, 8)
-            Dim tmp As decayType = configObj.filter
-            tName += "_" & tmp.ToString
-            tName += "_" & configObj.NWdefCutOff.ToString
-            'search for an unused output table filename
-            Dim runNumber As Integer = 0
-            outputTable = tName & "_" & runNumber.ToString & ".dbf"
-            Do Until Not My.Computer.FileSystem.FileExists(configObj.ResultsLocation & "\" & outputTable)
-                runNumber += 1
-                outputTable = tName & "_" & runNumber.ToString & ".dbf"
-            Loop
-            'create table with chosen name and add to session
-            pOutputTable = pFWS.CreateTable(outputTable, pFieldsEdit, Nothing, Nothing, "")
+
+            'find a name for the table
+            If radSpecify.Checked Then
+                resultsTable = txtFilename.Text & ".dbf"
+            Else
+                Dim runNum As Integer = 0                                    'used to create a unique version number
+                Dim tmp As decayType = configObj.filter
+                Dim tmpNm As String = pDataset.BrowseName        'sets the initial name to the Demand Layer name
+                tmpNm = tmpNm.Replace(" ", "")                            'remove any spaces
+                tmpNm = tmpNm.Substring(0, 8)                            'truncate to the first 8 characters
+                tmpNm += "_" & tmp.ToString                                'add filter type (ie classic or linear)
+                tmpNm += "_" & configObj.NWdefCutOff.ToString    'add threshold catchment size
+                resultsTable = tmpNm & "_" & runNum.ToString & ".dbf"
+
+                'check if filename is already present, if so increase the unique version number
+                Do Until Not My.Computer.FileSystem.FileExists(txtPath.Text & "\" & resultsTable)
+                    runNum += 1
+                    resultsTable = tmpNm & "_" & runNum.ToString & ".dbf"
+                Loop
+            End If
+
+            'create the fields for the table
+            Dim pFieldsEdit As IFieldsEdit = New Fields
+            pNewField = New Field
+            pNewField.Name_2 = "OID"
+            pNewField.Type_2 = esriFieldType.esriFieldTypeOID
+            pNewField.Length_2 = 8
+            pFieldsEdit.AddField(pNewField)
+
+            'if requested, copy additional demand ID field
+            If chkdemandID.Checked Then
+                pOldField = inputFC.Fields.Field(cboDemandIDField.SelectedIndex)
+                'copy field to results table
+                pNewField = New Field
+                pNewField.Name_2 = pOldField.Name
+                pNewField.Type_2 = pOldField.Type
+                pNewField.Length_2 = pOldField.Length
+                pNewField.Scale_2 = pOldField.Scale
+                pNewField.Precision_2 = pOldField.Precision
+                pNewField.AliasName_2 = pOldField.AliasName
+                pFieldsEdit.AddField(pNewField)
+            End If
+
+            'create other fields needed
+            pNewField = New Field
+            pNewField.Name_2 = "DemandID"
+            pNewField.Type_2 = esriFieldType.esriFieldTypeInteger
+            pNewField.Length_2 = 8
+            pFieldsEdit.AddField(pNewField)
+
+            pNewField = New Field
+            pNewField.Name_2 = "SupplyID"
+            pNewField.Type_2 = esriFieldType.esriFieldTypeInteger
+            pNewField.Length_2 = 8
+            pFieldsEdit.AddField(pNewField)
+
+            pNewField = New Field
+            pNewField.Name_2 = "NearDist"
+            pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
+            pNewField.Length_2 = 14
+            pNewField.DefaultValue_2 = 0.0
+            pNewField.Precision_2 = 12
+            pNewField.Scale_2 = 4
+            pFieldsEdit.AddField(pNewField)
+
+            pNewField = New Field
+            pNewField.Name_2 = "WithinDist"
+            pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
+            pNewField.Length_2 = 14
+            pNewField.DefaultValue_2 = 0.0
+            pNewField.Precision_2 = 12
+            pNewField.Scale_2 = 0
+            pFieldsEdit.AddField(pNewField)
+
+            pNewField = New Field
+            pNewField.Name_2 = "MeanDist"
+            pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
+            pNewField.Length_2 = 14
+            pNewField.DefaultValue_2 = 0.0
+            pNewField.Precision_2 = 12
+            pNewField.Scale_2 = 2
+            pFieldsEdit.AddField(pNewField)
+
+            pNewField = New Field
+            pNewField.Name_2 = "FCAscore"
+            pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
+            pNewField.Length_2 = 14
+            pNewField.DefaultValue_2 = 0.0
+            pNewField.Precision_2 = 12
+            pNewField.Scale_2 = 8
+            pFieldsEdit.AddField(pNewField)
+
+            'create the results table and add it to the map
+            pOutputTable = pFWS.CreateTable(resultsTable, pFieldsEdit, Nothing, Nothing, "")
             pTableCollection.AddTable(pOutputTable)
             pMxDoc.UpdateContents()
+
         Catch ex As Exception
-            If chkShowlog.Checked Then f2.txtLog.AppendText("Error: Unable to create output table " & outputTable & vbCrLf)
+            If chkShowlog.Checked Then
+                f2.txtLog.AppendText("Error: Unable to create results table " & resultsTable & vbCrLf)
+                f2.txtLog.AppendText(ex.Message)
+            End If
             Exit Sub
+
         End Try
 
-        Label2.Text = "5/6 computing closest facility metrics"
-        System.Windows.Forms.Application.DoEvents()
 
-        'access the Closest Facility results table
-        pCFtable = pNAContext1.NAClasses.ItemByName("CFRoutes")
+        Label1.Text = "computing closest facility metrics"
+        Windows.Forms.Application.DoEvents()
+
+        'connect to the CF results table
+        Dim pCFtable As ITable = pNAContext1.NAClasses.ItemByName("CFRoutes")
         If pCFtable Is Nothing Then
             If chkShowlog.Checked Then f2.txtLog.AppendText("Error: Unable to access Closest Facility 'Routes' table" & vbCrLf)
             Exit Sub
         End If
 
-        'create objects to access records of Closest Facility table
+        'objects to access records in the CF table
         Dim pCF_QueryFilter As IQueryFilter = New QueryFilter
         Dim pCF_Cursor As ICursor = Nothing
         Dim pCF_Row As IRow
-        Dim pOutputRow As IRow
 
-        Dim nameStr, numbers() As String
-        Dim fieldInc, fieldFac, fieldImp, fieldNam As Integer 'index of field Incident, Facility, Impedance and Name
+
+        'stores the index position of the Incident, Facility, Impedance and Name fields
+        Dim idxIncident, idxFacility, idxImpedance, idxName As Integer
         Dim impedanceField As String = "Total_" & configObj.NWimpedanceField
+        'manipulates the Name field value
+        Dim nameStr, numbers() As String
 
+        'creates dictionaries for associated supplyIDs and network distances
         Dim supplyIDs As New Dictionary(Of Integer, String)
         Dim distances As New Dictionary(Of Integer, Double)
 
-
-        'create cursor to access all rows of Closest Facility table
+        'create a cursor that accesses all rows
         pCF_Cursor = pCFtable.Search(Nothing, True)
         pCF_Row = pCF_Cursor.NextRow
 
-        'get index of IncidentID and FacilityID fields in Closest Facility table
+        'get the field positions of items of interest
         If Not pCF_Row Is Nothing Then
-            fieldInc = pCF_Row.Fields.FindField("IncidentID")
-            fieldFac = pCF_Row.Fields.FindField("FacilityID")
-            fieldNam = pCF_Row.Fields.FindField("Name")
-            fieldImp = pCF_Row.Fields.FindField(impedanceField)
+            idxIncident = pCF_Row.Fields.FindField("IncidentID")
+            idxFacility = pCF_Row.Fields.FindField("FacilityID")
+            idxName = pCF_Row.Fields.FindField("Name")
+            idxImpedance = pCF_Row.Fields.FindField(impedanceField)
         End If
 
-        'to maintain data matching continuity...
+        'loop through each row of the CF table
         Do Until pCF_Row Is Nothing
-            nameStr = pCF_Row.Value(fieldNam)     'access the Name field
-            numbers = nameStr.Split("-")                 'split the two values reported here
-            pCF_Row.Value(fieldInc) = numbers(0)   'swap IncidentID for the original Demand point OID
-            pCF_Row.Value(fieldFac) = numbers(1)   'swap FacilityID for the original Supply point OID 
-            pCF_Row.Store()
 
-            supplyIDs.Add(numbers(0), numbers(1))  'add to dictionary DemandID and SupplyID
-            distances.Add(numbers(0), pCF_Row.Value(fieldImp)) 'add to dictionary DemandID and distance
+            'swap the Incident ID and FacilityID values to maintain data matching continuity...
+            nameStr = pCF_Row.Value(idxName)             'access the Name value
+            numbers = nameStr.Split("-")                        'split the two IDs apart
+            pCF_Row.Value(idxIncident) = numbers(0)    'replace IncidentID with original Demand point OID
+            pCF_Row.Value(idxFacility) = numbers(1)      'replace FacilityID with original Supply point OID 
+            pCF_Row.Store()                                          'write new values back to the table
+
+            'put DemandID and SupplyID pair into dictionary
+            supplyIDs.Add(numbers(0), numbers(1))
+
+            'put DemandID and network distance pair into dictionary
+            distances.Add(numbers(0), pCF_Row.Value(idxImpedance))
 
             pCF_Row = pCF_Cursor.NextRow
         Loop
 
-        'create a list of all Demand Point OIDs
-        Dim oidDPlist As New List(Of Integer) 'stores Demand point OIDs
-        Dim demandID As Integer                    'individual demand ID value
-        Dim toLoad As Integer                         'number of IDs to identify
+
+        'pass through the Demand ID layer table and copy its IDs (and xtra ID) to the results table
+        Dim featCursor As IFeatureCursor = inputFC.Search(Nothing, True)
+        Dim feature As IFeature = featCursor.NextFeature()
+
+        Dim pResultRow As IRowBuffer = pOutputTable.CreateRowBuffer
+        Dim pResultIC As ICursor
+
         Try
-            inputFL = pMap.Layer(configObj.DemandLayerIndex)
-            If configObj.DemandSelected = True Then     'if selection to be used
-                Dim tableSelection As ITableSelection = CType(inputFL, ITableSelection) 'explicit Cast
-                Dim selectionSet As ISelectionSet2 = tableSelection.SelectionSet
-                toLoad = selectionSet.Count
-                Dim enumIDs As IEnumIDs = selectionSet.IDs
-                demandID = enumIDs.Next
-                Do While demandID > 0
-                    oidDPlist.Add(demandID)
-                    demandID = enumIDs.Next
+            pResultIC = pOutputTable.Insert(True)
+
+            If chkdemandID.Checked Then
+                Do Until feature Is Nothing
+
+                    pResultRow.Value(1) = feature.Value(cboDemandIDField.SelectedIndex)
+                    pResultRow.Value(2) = feature.OID
+
+                    If supplyIDs.ContainsKey(feature.OID) Then                   'was a supply point found during CF analysis?
+                        pResultRow.Value(3) = supplyIDs.Item(feature.OID)   '    record original supply point OID
+                        pResultRow.Value(4) = distances.Item(feature.OID)    '    record network distance
+                    Else
+                        pResultRow.Value(3) = -1                                         'otherwise store values to indicate no shortest route
+                        pResultRow.Value(4) = -1
+                    End If
+
+                    pResultIC.InsertRow(pResultRow)
+                    feature = featCursor.NextFeature()
                 Loop
-            Else                                                              'if a selection not used
-                inputFC = inputFL.FeatureClass
-                toLoad = inputFC.FeatureCount(Nothing)
-                Dim featCursor As IFeatureCursor = inputFC.Search(Nothing, True)
-                Dim feat As IFeature = featCursor.NextFeature()
-                Do Until feat Is Nothing
-                    oidDPlist.Add(feat.OID)
-                    feat = featCursor.NextFeature()
+            Else
+                Do Until feature Is Nothing
+
+                    pResultRow.Value(1) = feature.OID
+
+                    If supplyIDs.ContainsKey(feature.OID) Then                   'was a supply point found during CF analysis?
+                        pResultRow.Value(2) = supplyIDs.Item(feature.OID)   '    record original supply point OID
+                        pResultRow.Value(3) = distances.Item(feature.OID)    '    record network distance
+                    Else
+                        pResultRow.Value(2) = -1                                         'otherwise store values to indicate no shortest route
+                        pResultRow.Value(3) = -1
+                    End If
+
+                    pResultIC.InsertRow(pResultRow)
+                    feature = featCursor.NextFeature()
                 Loop
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(featCursor)
             End If
-
-            'work through each Demand point OID in turn
-            For Each demandID In oidDPlist
-                pOutputRow = pOutputTable.CreateRow   'create new row in output table
-                pOutputRow.Value(1) = demandID             'record original demand point OID
-
-                If supplyIDs.ContainsKey(demandID) Then
-                    pOutputRow.Value(2) = supplyIDs.Item(demandID) 'record original supply point OID
-                    pOutputRow.Value(3) = distances.Item(demandID)  'record shortest network distance
-                Else
-                    pOutputRow.Value(2) = -1                                         'default values if route not found
-                    pOutputRow.Value(3) = -1
-                End If
-
-                pOutputRow.Store()                                 'write row to output table
-            Next
-
-            'release resources
-            If Not pCF_Cursor Is Nothing Then
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(pCF_Cursor)
-            End If
-            supplyIDs = Nothing
-            distances = Nothing
+            pResultIC.Flush()
 
         Catch ex As Exception
             Windows.Forms.MessageBox.Show(ex.Message)
         End Try
 
+        'release resources
+        System.Runtime.InteropServices.Marshal.ReleaseComObject(featCursor)
+        If Not pCF_Cursor Is Nothing Then
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(pCF_Cursor)
+        End If
 
-        ' ** FCA Step1 - compute demand totals at each Supply (Origin) point  **
+        supplyIDs = Nothing
+        distances = Nothing
 
-        'access the OD matrix results table
-        pODLinesTable = pNAContext2.NAClasses.ItemByName("ODLines")
-        If pODLinesTable Is Nothing Then
+
+        ' ** FCA Step1 - compute demand totals at each supply (Origin) point  **
+
+        Label1.Text = "computing FCA scores - step 1"
+        System.Windows.Forms.Application.DoEvents()
+
+        'connect to the OD matrix results table
+        Dim pODTable As ITable = pNAContext2.NAClasses.ItemByName("ODLines")
+        If pODTable Is Nothing Then
             If chkShowlog.Checked Then f2.txtLog.AppendText("Error: Unable to access the OD Matrix 'Lines' table" & vbCrLf)
             Exit Sub
         End If
 
-        Label1.Text = "6/6 computing FCA metrics - step 1"
-        System.Windows.Forms.Application.DoEvents()
-
-        'dictionary for Step 1 results (i.e. total service demand at each supply point)
+        'build dictionary for Step 1 (holding total demand volume on each supply point)
         Dim demandTotals As New Dictionary(Of Integer, Double)
 
         Dim supplyID As Integer
         Dim demandValue, distance As Double
 
-        Dim pDemand_QF As IQueryFilter = New QueryFilter  'create a query object 
+        Dim pDemand_QF As IQueryFilter = New QueryFilter
         Dim pDemand_FC As IFeatureCursor = Nothing
         Dim pDemand_Feature As IFeature
         Dim pODcursor As ICursor = Nothing
         Dim pODrow As IRow = Nothing
 
         Try
-            'create a pointer (inputFC) to the demand points Feature Class table,
-            pLayer = pMap.Layer(configObj.DemandLayerIndex)
-            inputFL = pLayer
-            inputFC = inputFL.FeatureClass
 
-            'cursor to access all rows in OD matrix table
-            pODcursor = pODLinesTable.Search(Nothing, True)
+            'create a pointer to the demand points attribute table (as ITable)
+            inputFL = pMap.Layer(configObj.DemandLayerIndex)
+            inputFC = inputFL.FeatureClass
+            pDisplayTable = inputFL
+            pTable = pDisplayTable.DisplayTable
+
+            'set up a cursor to access all rows of the OD table
+            pODcursor = pODTable.Search(Nothing, True)
             pODrow = pODcursor.NextRow
             If Not pODrow Is Nothing Then
-                fieldNam = pODrow.Fields.FindField("Name")            'get index of Name field
-                fieldImp = pODrow.Fields.FindField(impedanceField)  'get index of Impedance field
+                idxName = pODrow.Fields.FindField("Name")                       'index position of the Name field
+                idxImpedance = pODrow.Fields.FindField(impedanceField)    'index position of the Impedance field
             End If
 
+            'loop through each row of the OD table
             Do Until pODrow Is Nothing
 
-                'extract supply and demand OIDs, and network distance between these
-                nameStr = pODrow.Value(fieldNam)
+                'extract the supply and demand OIDs, and the network distance between them
+                nameStr = pODrow.Value(idxName)
                 numbers = nameStr.Split("-")
                 supplyID = numbers(0)
                 demandID = numbers(1)
-                distance = pODrow.Value(fieldImp)
+                distance = pODrow.Value(idxImpedance)
 
-                'look up the corresponding Demand Volume value
-                If (configObj.DemandVolumeField > 0) Then
-                    pDemand_QF.WhereClause = inputFC.OIDFieldName & " = " & demandID
-                    pDemand_FC = inputFC.Search(pDemand_QF, True)
-                    pDemand_Feature = pDemand_FC.NextFeature
-                    demandValue = pDemand_Feature.Value(configObj.DemandVolumeField)
-                Else
-                    demandValue = 1.0
-                End If
+                'look up the demand point's Volume value
+                pDemand_QF.WhereClause = inputFC.OIDFieldName & " = " & demandID
+                pDemand_FC = pTable.Search(pDemand_QF, True)
+                pDemand_Feature = pDemand_FC.NextFeature
+                demandValue = pDemand_Feature.Value(configObj.DemandVolumeField)
 
-                'scale demand value using chosen distance-decay function
+                'scale demand value using distance-decay model
                 demandValue = dist_weighted(demandValue, distance, configObj)
 
-                'check if this Supply point already exists in the dictionary
+                'check if this Supply point exists in the dictionary
                 If demandTotals.ContainsKey(supplyID) Then
-                    'if YES: add current demand volume to on-going total
+                    'YES: add current demand volume to on-going total
                     demandTotals.Item(supplyID) += demandValue
                 Else
-                    'if NO: add a new dictionay entry with this intial demand volume
+                    'NO: add new dictionay entry with intial volume
                     demandTotals.Add(supplyID, demandValue)
                 End If
 
@@ -567,57 +600,59 @@ Public Class s4_frmRun
             Windows.Forms.MessageBox.Show(ex.Message)
         End Try
 
+        'Dim pair As KeyValuePair(Of Integer, Double)
+        'For Each pair In demandTotals
+        '     Display Key and Value.
+        '    f2.txtLog.AppendText(pair.Key & " -- " & pair.Value & vbCrLf)
+        'Next
 
-        ' ** FCA Step2 - calculate availability scores at each demand point **
 
-        'dictionary for Step 2 results (i.e. sum of Step1 scores at each demand point)
-        Label1.Text = "6/6 computing FCA metrics - step 2"
+        ' ** FCA Step2 - calculate availability scores at each demand (Destination) point **
+        Label1.Text = "computing FCA scores - step 2"
+        System.Windows.Forms.Application.DoEvents()
+
+        'build dictionary for Step 2 (holding total step-1 scores at each demand point)
         Dim demandList As New Dictionary(Of Integer, destObj)
+        Dim supplyValue, availabilityScore As Double
+
         Try
-            'create a pointer (inputFC) to the supply points Feature Class table
-            pLayer = pMap.Layer(configObj.SupplyLayerIndex)
-            inputFL = pLayer
+
+            'create a pointer to the supply points attribute table (as ITable)
+            inputFL = pMap.Layer(configObj.SupplyLayerIndex)
             inputFC = inputFL.FeatureClass
+            pDisplayTable = inputFL
+            pTable = pDisplayTable.DisplayTable
 
-            Dim supplyValue, availabilityScore As Double
-
-            'cursor to access all rows in OD matrix table
-            pODcursor = pODLinesTable.Search(Nothing, True)
+            'set up a cursor to access all rows of the OD table
+            pODcursor = pODTable.Search(Nothing, True)
             pODrow = pODcursor.NextRow
-
             Do Until pODrow Is Nothing
 
-                'extract supply and demand OID, and network distance between these
-                nameStr = pODrow.Value(fieldNam)
+                'extract the supply and demand OIDs, and the network distance between them
+                nameStr = pODrow.Value(idxName)
                 numbers = nameStr.Split("-")
                 supplyID = numbers(0)
                 demandID = numbers(1)
-                distance = pODrow.Value(fieldImp)
+                distance = pODrow.Value(idxImpedance)
 
-                'look up corresponding Supply Volume value
-                If (configObj.SupplyVolumeField > 0) Then
-                    pDemand_QF.WhereClause = inputFC.OIDFieldName & " = " & supplyID
-                    pDemand_FC = inputFC.Search(pDemand_QF, True)
-                    pDemand_Feature = pDemand_FC.NextFeature
-                    supplyValue = pDemand_Feature.Value(configObj.SupplyVolumeField) * configObj.NWscale
-                Else
-                    supplyValue = configObj.NWscale
-                End If
+                'look up the supply point's Volume value
+                pDemand_QF.WhereClause = inputFC.OIDFieldName & " = " & supplyID
+                pDemand_FC = inputFC.Search(pDemand_QF, True)
+                pDemand_Feature = pDemand_FC.NextFeature
+                supplyValue = pDemand_Feature.Value(configObj.SupplyVolumeField) * ScaleFactor
 
                 'compute availability score for this Supply point
                 availabilityScore = supplyValue / demandTotals(supplyID)
-
-                'scale the supply value using chosen distance-decay function
                 availabilityScore = dist_weighted(availabilityScore, distance, configObj)
 
                 'check if this Demand point already exists in the dictionary
                 If demandList.ContainsKey(demandID) Then
-                    'if YES; update information relating to this Origin
-                    demandList.Item(demandID).count += 1                              'total number of Supply points
-                    demandList.Item(demandID).sumdist += distance                 'total distance to Supply points
-                    demandList.Item(demandID).twostep += availabilityScore     'total Step1 FCA score
+                    'YES: update information for this Demand
+                    demandList.Item(demandID).count += 1                              'total Supply points
+                    demandList.Item(demandID).sumdist += distance                 'total Distance to Supply points
+                    demandList.Item(demandID).twostep += availabilityScore      'total Step1 FCA score
                 Else
-                    'if NO: add new dictionary entry with this current object
+                    'NO: add a new dictionary entry using current object
                     Dim newObj As New destObj
                     newObj.count = 1
                     newObj.sumdist = distance
@@ -627,6 +662,14 @@ Public Class s4_frmRun
 
                 pODrow = pODcursor.NextRow()
             Loop
+
+            'Dim pair2 As KeyValuePair(Of Integer, destObj)
+            'Dim newObj2 As New destObj
+            'For Each pair2 In demandList
+            '    ' Display Key and Value.
+            '    newObj2 = pair2.Value
+            '    f2.txtLog.AppendText(pair2.Key & " -- " & newObj2.twostep.ToString & vbCrLf)
+            'Next
 
             'release resources
             If Not pODcursor Is Nothing Then
@@ -640,22 +683,72 @@ Public Class s4_frmRun
             Windows.Forms.MessageBox.Show(ex.Message)
         End Try
 
-        'write accessibility metrics to output table
+
+        'record accessibility metrics in results table
+        Label1.Text = "writing results to output table"
+        System.Windows.Forms.Application.DoEvents()
+
         Try
-            For Each obj As KeyValuePair(Of Integer, destObj) In demandList
-                pDemand_QF.WhereClause = "DemandID = " & obj.Key.ToString
-                pODcursor = pOutputTable.Search(pDemand_QF, True)
-                pODrow = pODcursor.NextRow
-                pODrow.Value(4) = obj.Value.count
-                pODrow.Value(5) = (obj.Value.sumdist / obj.Value.count)
-                pODrow.Value(6) = obj.Value.twostep
-                pODrow.Store()
-            Next
+
+            If chkdemandID.Checked Then
+
+                'Create an update cursor on the results table
+
+                Dim pOutputCursor As ICursor = pOutputTable.Update(Nothing, True)
+                Dim pOT_Row As IRow = pOutputCursor.NextRow()
+
+                'loop through each row and update field values
+                Dim demandID As Integer
+                pOT_Row = pOutputCursor.NextRow()
+                Do Until pOT_Row Is Nothing
+                    demandID = pOT_Row.Value(1)
+                    If demandList.ContainsKey(demandID) Then
+                        pOT_Row.Value(5) = demandList.Item(demandID).count
+                        pOT_Row.Value(6) = demandList.Item(demandID).sumdist / demandList.Item(demandID).count
+                        pOT_Row.Value(7) = demandList.Item(demandID).twostep
+                    End If
+                    pOutputCursor.UpdateRow(pOT_Row)
+                    pOT_Row = pOutputCursor.NextRow()
+                Loop
+
+            Else
+
+                'Create an update cursor on the results table
+
+                Dim pOutputCursor As ICursor = pOutputTable.Update(Nothing, True)
+                Dim pOT_Row As IRow = pOutputCursor.NextRow()
+
+                'loop through each row and update field values
+                Dim demandID As Integer
+                pOT_Row = pOutputCursor.NextRow()
+                Do Until pOT_Row Is Nothing
+                    demandID = pOT_Row.Value(1)
+                    If demandList.ContainsKey(demandID) Then
+                        pOT_Row.Value(4) = demandList.Item(demandID).count
+                        pOT_Row.Value(5) = demandList.Item(demandID).sumdist / demandList.Item(demandID).count
+                        pOT_Row.Value(6) = demandList.Item(demandID).twostep
+                    End If
+                    pOutputCursor.UpdateRow(pOT_Row)
+                    pOT_Row = pOutputCursor.NextRow()
+                Loop
+
+                'For Each obj As KeyValuePair(Of Integer, destObj) In demandList
+                '    pDemand_QF.WhereClause = "DemandID = " & obj.Key.ToString
+                '    pODcursor = pOutputTable.Search(pDemand_QF, False)
+                '    pODrow = pODcursor.NextRow
+                '    pODrow.Value(4) = obj.Value.count
+                '    pODrow.Value(5) = (obj.Value.sumdist / obj.Value.count)
+                '    pODrow.Value(6) = obj.Value.twostep
+                '    pODrow.Store()
+                'Next
+
+            End If
+
         Catch ex As Exception
             MsgBox(ex.Message)
         End Try
 
-        System.Windows.Forms.MessageBox.Show("Computation completed." & vbCrLf & "results stored in dbf file..." & vbCrLf & outputTable, _
+        Windows.Forms.MessageBox.Show("Computation completed." & vbCrLf & "Results recorded in dbf file..." & vbCrLf & resultsTable, _
                                              "Complete", Windows.Forms.MessageBoxButtons.OK, Windows.Forms.MessageBoxIcon.Information)
 
         System.Runtime.InteropServices.Marshal.ReleaseComObject(pOutputTable)
@@ -740,13 +833,13 @@ Public Class s4_frmRun
     Private Sub radFilename(sender As System.Object, e As System.EventArgs) Handles radSpecify.CheckedChanged, radAuto.CheckedChanged
         If radSpecify.Checked Then
             txtFilename.Enabled = True
+            radSpecify.ForeColor = Drawing.Color.FromArgb(0, 0, 0)
+            radAuto.ForeColor = Drawing.Color.FromArgb(100, 100, 100)
         Else
             txtFilename.Enabled = False
+            radSpecify.ForeColor = Drawing.Color.FromArgb(100, 100, 100)
+            radAuto.ForeColor = Drawing.Color.FromArgb(0, 0, 0)
         End If
-    End Sub
-
-    Private Sub Button1_Click(sender As System.Object, e As System.EventArgs) Handles Button1.Click
-        showconfigParams(configObj)
     End Sub
 
 End Class

@@ -154,6 +154,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="s1_frmIntroduction.resx">
       <DependentUpon>s1_frmIntroduction.vb</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="s2_frmSupplyDemand.resx">
       <DependentUpon>s2_frmSupplyDemand.vb</DependentUpon>

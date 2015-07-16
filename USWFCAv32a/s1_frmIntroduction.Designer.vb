@@ -30,6 +30,7 @@ Partial Class s1_frmIntroduction
         Me.btn1Next = New System.Windows.Forms.Button()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.PictureBox10 = New System.Windows.Forms.PictureBox()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.grpNetworklayer.SuspendLayout()
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox10, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -40,11 +41,11 @@ Partial Class s1_frmIntroduction
         Me.grpNetworklayer.Controls.Add(Me.TextBox1)
         Me.grpNetworklayer.Cursor = System.Windows.Forms.Cursors.Default
         Me.grpNetworklayer.Font = New System.Drawing.Font("Microsoft Sans Serif", 13.8!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.grpNetworklayer.Location = New System.Drawing.Point(12, 190)
+        Me.grpNetworklayer.Location = New System.Drawing.Point(12, 180)
         Me.grpNetworklayer.Margin = New System.Windows.Forms.Padding(4)
         Me.grpNetworklayer.Name = "grpNetworklayer"
         Me.grpNetworklayer.Padding = New System.Windows.Forms.Padding(4)
-        Me.grpNetworklayer.Size = New System.Drawing.Size(704, 226)
+        Me.grpNetworklayer.Size = New System.Drawing.Size(704, 251)
         Me.grpNetworklayer.TabIndex = 2
         Me.grpNetworklayer.TabStop = False
         Me.grpNetworklayer.Text = "Introduction:"
@@ -56,7 +57,7 @@ Partial Class s1_frmIntroduction
         Me.TextBox1.Location = New System.Drawing.Point(7, 34)
         Me.TextBox1.Multiline = True
         Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(682, 174)
+        Me.TextBox1.Size = New System.Drawing.Size(682, 204)
         Me.TextBox1.TabIndex = 0
         Me.TextBox1.Text = resources.GetString("TextBox1.Text")
         '
@@ -64,7 +65,7 @@ Partial Class s1_frmIntroduction
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(159, 108)
+        Me.Label2.Location = New System.Drawing.Point(159, 100)
         Me.Label2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(430, 58)
@@ -116,12 +117,23 @@ Partial Class s1_frmIntroduction
         Me.PictureBox10.TabIndex = 50
         Me.PictureBox10.TabStop = False
         '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.Location = New System.Drawing.Point(15, 108)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(149, 29)
+        Me.Label1.TabIndex = 51
+        Me.Label1.Text = "16/07 16:290"
+        '
         's1_frmIntroduction
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
         Me.ClientSize = New System.Drawing.Size(730, 493)
+        Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.PictureBox10)
         Me.Controls.Add(Me.btnAbout)
         Me.Controls.Add(Me.btn1Next)
@@ -136,6 +148,7 @@ Partial Class s1_frmIntroduction
         Me.RightToLeftLayout = True
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent
         Me.Text = "SW-FCA - Page 1/4"
+        Me.TopMost = True
         Me.grpNetworklayer.ResumeLayout(False)
         Me.grpNetworklayer.PerformLayout()
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).EndInit()
@@ -151,4 +164,5 @@ Partial Class s1_frmIntroduction
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents btnAbout As System.Windows.Forms.Button
     Friend WithEvents PictureBox10 As System.Windows.Forms.PictureBox
+    Friend WithEvents Label1 As System.Windows.Forms.Label
 End Class

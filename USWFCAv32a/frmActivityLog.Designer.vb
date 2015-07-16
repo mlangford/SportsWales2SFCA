@@ -31,19 +31,20 @@ Partial Class frmActivityLog
         Me.txtLog.Location = New System.Drawing.Point(0, 0)
         Me.txtLog.Multiline = True
         Me.txtLog.Name = "txtLog"
-        Me.txtLog.Size = New System.Drawing.Size(982, 705)
+        Me.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtLog.Size = New System.Drawing.Size(763, 345)
         Me.txtLog.TabIndex = 0
         '
         'frmActivityLog
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(982, 705)
+        Me.ClientSize = New System.Drawing.Size(763, 345)
         Me.Controls.Add(Me.txtLog)
         Me.MaximizeBox = False
         Me.MinimizeBox = False
         Me.Name = "frmActivityLog"
-        Me.Text = "Activity Log"
+        Me.Text = "Network Analyst Report"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

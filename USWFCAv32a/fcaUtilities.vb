@@ -132,7 +132,6 @@ Module fcaUtilities
         Dim list_Fields As New List(Of layerItem)
 
         Dim pFLayer As IFeatureLayer = Nothing
-        Dim pFClass As IFeatureClass = Nothing
         Dim pFields As IFields = Nothing
         Dim pField As IField = Nothing
         Dim list_item As layerItem = Nothing
@@ -142,11 +141,8 @@ Module fcaUtilities
             Dim pMap As IMap = pMxDoc.FocusMap
 
             pFLayer = pMap.Layer(layerIndex)
-            pFClass = pFLayer.FeatureClass
 
-            '**Cast to ITable from IFeatureClass
-            '     to access fields in a joined table
-
+            '**Cast to ITable to access fields in a joined table
             Dim pDisplayTable As IDisplayTable = pFLayer
             Dim pTable As ITable = pDisplayTable.DisplayTable
             pFields = pTable.Fields
@@ -178,7 +174,6 @@ Module fcaUtilities
         Dim list_Fields As New List(Of layerItem)
 
         Dim pFLayer As IFeatureLayer = Nothing
-        Dim pFClass As IFeatureClass = Nothing
         Dim pFields As IFields = Nothing
         Dim pField As IField = Nothing
         Dim list_item As layerItem = Nothing
@@ -188,11 +183,9 @@ Module fcaUtilities
             Dim pMap As IMap = pMxDoc.FocusMap
 
             pFLayer = pMap.Layer(layerIndex)
-            pFClass = pFLayer.FeatureClass
 
             '**Cast to ITable from IFeatureClass
             '     to access fields in a joined table
-
             Dim pDisplayTable As IDisplayTable = pFLayer
             Dim pTable As ITable = pDisplayTable.DisplayTable
             pFields = pTable.Fields

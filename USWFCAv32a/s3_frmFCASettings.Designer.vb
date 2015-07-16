@@ -237,6 +237,7 @@ Partial Class s3_frmFCASettings
         Me.Name = "s3_frmFCASettings"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "SW-FCA - Page 3/4"
+        Me.TopMost = True
         Me.GroupBox2.ResumeLayout(False)
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
