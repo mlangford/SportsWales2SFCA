@@ -33,6 +33,9 @@ Partial Class s4_frmRun
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.cboDemandIDField = New System.Windows.Forms.ComboBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.Panel4 = New System.Windows.Forms.Panel()
+        Me.cboScale = New System.Windows.Forms.ComboBox()
+        Me.Label4 = New System.Windows.Forms.Label()
         Me.Panel2 = New System.Windows.Forms.Panel()
         Me.chkdemandID = New System.Windows.Forms.CheckBox()
         Me.btn4Prev = New System.Windows.Forms.Button()
@@ -43,17 +46,14 @@ Partial Class s4_frmRun
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.Panel5 = New System.Windows.Forms.Panel()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.cboScale = New System.Windows.Forms.ComboBox()
-        Me.Panel4 = New System.Windows.Forms.Panel()
-        Me.Label4 = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.Panel3.SuspendLayout()
         Me.Panel1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
+        Me.Panel4.SuspendLayout()
         Me.Panel2.SuspendLayout()
         Me.GroupBox3.SuspendLayout()
         Me.Panel5.SuspendLayout()
-        Me.Panel4.SuspendLayout()
         Me.SuspendLayout()
         '
         'GroupBox1
@@ -175,6 +175,37 @@ Partial Class s4_frmRun
         Me.GroupBox2.TabIndex = 4
         Me.GroupBox2.TabStop = False
         '
+        'Panel4
+        '
+        Me.Panel4.BackColor = System.Drawing.Color.FromArgb(CType(CType(237, Byte), Integer), CType(CType(21, Byte), Integer), CType(CType(30, Byte), Integer))
+        Me.Panel4.Controls.Add(Me.cboScale)
+        Me.Panel4.Controls.Add(Me.Label4)
+        Me.Panel4.Location = New System.Drawing.Point(10, 80)
+        Me.Panel4.Name = "Panel4"
+        Me.Panel4.Size = New System.Drawing.Size(660, 50)
+        Me.Panel4.TabIndex = 1
+        '
+        'cboScale
+        '
+        Me.cboScale.FormattingEnabled = True
+        Me.cboScale.Items.AddRange(New Object() {"1", "10", "100", "1000", "10000", "100000", "1000000"})
+        Me.cboScale.Location = New System.Drawing.Point(333, 11)
+        Me.cboScale.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboScale.Name = "cboScale"
+        Me.cboScale.Size = New System.Drawing.Size(75, 28)
+        Me.cboScale.TabIndex = 36
+        Me.cboScale.Text = "1"
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.ForeColor = System.Drawing.Color.White
+        Me.Label4.Location = New System.Drawing.Point(107, 19)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(182, 20)
+        Me.Label4.TabIndex = 2
+        Me.Label4.Text = "FCA score multiplier"
+        '
         'Panel2
         '
         Me.Panel2.BackColor = System.Drawing.Color.FromArgb(CType(CType(237, Byte), Integer), CType(CType(21, Byte), Integer), CType(CType(30, Byte), Integer))
@@ -293,43 +324,12 @@ Partial Class s4_frmRun
         Me.Label1.Text = "."
         Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
-        'cboScale
-        '
-        Me.cboScale.FormattingEnabled = True
-        Me.cboScale.Items.AddRange(New Object() {"1", "10", "100", "1000", "10000", "100000", "1000000"})
-        Me.cboScale.Location = New System.Drawing.Point(333, 11)
-        Me.cboScale.Margin = New System.Windows.Forms.Padding(4)
-        Me.cboScale.Name = "cboScale"
-        Me.cboScale.Size = New System.Drawing.Size(75, 28)
-        Me.cboScale.TabIndex = 36
-        Me.cboScale.Text = "1"
-        '
-        'Panel4
-        '
-        Me.Panel4.BackColor = System.Drawing.Color.FromArgb(CType(CType(237, Byte), Integer), CType(CType(21, Byte), Integer), CType(CType(30, Byte), Integer))
-        Me.Panel4.Controls.Add(Me.cboScale)
-        Me.Panel4.Controls.Add(Me.Label4)
-        Me.Panel4.Location = New System.Drawing.Point(10, 80)
-        Me.Panel4.Name = "Panel4"
-        Me.Panel4.Size = New System.Drawing.Size(660, 50)
-        Me.Panel4.TabIndex = 1
-        '
-        'Label4
-        '
-        Me.Label4.AutoSize = True
-        Me.Label4.ForeColor = System.Drawing.Color.White
-        Me.Label4.Location = New System.Drawing.Point(134, 19)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(155, 20)
-        Me.Label4.TabIndex = 2
-        Me.Label4.Text = "Scaling multiplier"
-        '
         's4_frmRun
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(730, 493)
+        Me.ClientSize = New System.Drawing.Size(740, 503)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.Label3)
@@ -351,13 +351,13 @@ Partial Class s4_frmRun
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
+        Me.Panel4.ResumeLayout(False)
+        Me.Panel4.PerformLayout()
         Me.Panel2.ResumeLayout(False)
         Me.Panel2.PerformLayout()
         Me.GroupBox3.ResumeLayout(False)
         Me.Panel5.ResumeLayout(False)
         Me.Panel5.PerformLayout()
-        Me.Panel4.ResumeLayout(False)
-        Me.Panel4.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

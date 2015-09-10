@@ -1,4 +1,6 @@
 ﻿Imports System.Windows.Forms
+Imports ESRI.ArcGIS
+Imports ESRI.ArcGIS.esriSystem
 Imports ESRI.ArcGIS.ArcMapUI
 Imports ESRI.ArcGIS.Carto
 Imports ESRI.ArcGIS.Geodatabase
@@ -59,4 +61,19 @@ Public Class s1_frmIntroduction
         f.ShowDialog()
     End Sub
 
+    Private Sub s1_frmIntroduction_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+
+        Dim aoLicenseInitializer As LicenseInitializer
+        aoLicenseInitializer = New LicenseInitializer
+
+        'ESRI License Initializer generated code.
+        If (Not aoLicenseInitializer.InitializeApplication(New esriLicenseProductCode() {esriLicenseProductCode.esriLicenseProductCodeEngine, esriLicenseProductCode.esriLicenseProductCodeBasic, esriLicenseProductCode.esriLicenseProductCodeStandard, esriLicenseProductCode.esriLicenseProductCodeAdvanced}, _
+        New esriLicenseExtensionCode() {esriLicenseExtensionCode.esriLicenseExtensionCodeNetwork, esriLicenseExtensionCode.esriLicenseExtensionCodeAeronautical})) Then
+            MessageBox.Show("This AddIn cannot be used as you do not have the required ArcGIS licenses: " + aoLicenseInitializer.LicenseMessage())
+            'aoLicenseInitializer.ShutdownApplication()
+            btn1Next.Enabled = False
+            Return
+        End If
+
+    End Sub
 End Class

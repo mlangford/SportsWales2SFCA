@@ -10,6 +10,6 @@ between the two point datasets. The points held in both of the point layers must
 the selected network layer using the "Add Locations" tool in the Network Analyst Toolbox. From the O-D matrix
 FCA scores and other accessibility metrics are computed and the results placed in a ArcGIS table for consumption.
 
-Further instructions are provided in accompanying documenation.
+Further instructions are provided in accompanying documentation.
 
 Click the right-arrow to begin...

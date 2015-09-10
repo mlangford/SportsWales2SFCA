@@ -30,7 +30,6 @@ Partial Class s1_frmIntroduction
         Me.btn1Next = New System.Windows.Forms.Button()
         Me.PictureBox9 = New System.Windows.Forms.PictureBox()
         Me.PictureBox10 = New System.Windows.Forms.PictureBox()
-        Me.Label1 = New System.Windows.Forms.Label()
         Me.grpNetworklayer.SuspendLayout()
         CType(Me.PictureBox9, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.PictureBox10, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -117,23 +116,12 @@ Partial Class s1_frmIntroduction
         Me.PictureBox10.TabIndex = 50
         Me.PictureBox10.TabStop = False
         '
-        'Label1
-        '
-        Me.Label1.AutoSize = True
-        Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 13.8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label1.Location = New System.Drawing.Point(15, 108)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(149, 29)
-        Me.Label1.TabIndex = 51
-        Me.Label1.Text = "16/07 16:290"
-        '
         's1_frmIntroduction
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(730, 493)
-        Me.Controls.Add(Me.Label1)
+        Me.ClientSize = New System.Drawing.Size(740, 503)
         Me.Controls.Add(Me.PictureBox10)
         Me.Controls.Add(Me.btnAbout)
         Me.Controls.Add(Me.btn1Next)
@@ -160,9 +148,8 @@ Partial Class s1_frmIntroduction
     Friend WithEvents grpNetworklayer As System.Windows.Forms.GroupBox
     Friend WithEvents Label2 As System.Windows.Forms.Label
     Friend WithEvents PictureBox9 As System.Windows.Forms.PictureBox
-    Friend WithEvents btn1Next As System.Windows.Forms.Button
     Friend WithEvents TextBox1 As System.Windows.Forms.TextBox
     Friend WithEvents btnAbout As System.Windows.Forms.Button
     Friend WithEvents PictureBox10 As System.Windows.Forms.PictureBox
-    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents btn1Next As System.Windows.Forms.Button
 End Class

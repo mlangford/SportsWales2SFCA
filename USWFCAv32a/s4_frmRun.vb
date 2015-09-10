@@ -167,16 +167,19 @@ Public Class s4_frmRun
                 End If
                 'display returned messages
                 If Not gpMessages1 Is Nothing Then
+                    Dim count As Integer
                     For i As Integer = 0 To gpMessages1.Count - 1
                         Select Case gpMessages1.GetMessage(i).Type
                             Case esriGPMessageType.esriGPMessageTypeError
                                 f2.txtLog.AppendText("Error: " & gpMessages1.GetMessage(i).ErrorCode.ToString() & " " & gpMessages1.GetMessage(i).Description & vbCrLf)
                             Case esriGPMessageType.esriGPMessageTypeWarning
                                 f2.txtLog.AppendText("Warning: " + gpMessages1.GetMessage(i).Description & vbCrLf)
+                                count += 1
                             Case Else
                                 f2.txtLog.AppendText("Information: " + gpMessages1.GetMessage(i).Description & vbCrLf)
                         End Select
                     Next
+                    f2.txtLog.AppendText("Total Warnings Count:" + count.ToString + vbCrLf)
                 End If
             End If
 
@@ -249,16 +252,19 @@ Public Class s4_frmRun
                 End If
                 'display returned messages
                 If Not gpMessages2 Is Nothing Then
+                    Dim count As Integer
                     For i As Integer = 0 To gpMessages2.Count - 1
                         Select Case gpMessages2.GetMessage(i).Type
                             Case esriGPMessageType.esriGPMessageTypeError
                                 f2.txtLog.AppendText("Error: " & gpMessages2.GetMessage(i).ErrorCode.ToString() & " " & gpMessages2.GetMessage(i).Description & vbCrLf)
                             Case esriGPMessageType.esriGPMessageTypeWarning
                                 f2.txtLog.AppendText("Warning: " & gpMessages2.GetMessage(i).Description & vbCrLf)
+                                count += 1
                             Case Else
                                 f2.txtLog.AppendText("Information: " & gpMessages2.GetMessage(i).Description & vbCrLf)
                         End Select
                     Next
+                    f2.txtLog.AppendText("Total Warnings Count:" + count.ToString + vbCrLf)
                 End If
             End If
 
@@ -282,7 +288,7 @@ Public Class s4_frmRun
         inputFL = pMap.Layer(configObj.DemandLayerIndex)
         inputFC = inputFL.FeatureClass
         pDataset = inputFC
-        'cast to ITable from IFeatureClass
+        'cast to ITable
         pDisplayTable = inputFL
         pTable = pDisplayTable.DisplayTable
 
@@ -357,7 +363,7 @@ Public Class s4_frmRun
             pFieldsEdit.AddField(pNewField)
 
             pNewField = New Field
-            pNewField.Name_2 = "NearDist"
+            pNewField.Name_2 = "CostDist"
             pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
             pNewField.Length_2 = 14
             pNewField.DefaultValue_2 = 0.0
@@ -367,27 +373,24 @@ Public Class s4_frmRun
 
             pNewField = New Field
             pNewField.Name_2 = "WithinDist"
-            pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
-            pNewField.Length_2 = 14
-            pNewField.DefaultValue_2 = 0.0
-            pNewField.Precision_2 = 12
-            pNewField.Scale_2 = 0
+            pNewField.Type_2 = esriFieldType.esriFieldTypeInteger
+            pNewField.Length_2 = 8
             pFieldsEdit.AddField(pNewField)
 
             pNewField = New Field
-            pNewField.Name_2 = "MeanDist"
+            pNewField.Name_2 = "AveDist"
             pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
             pNewField.Length_2 = 14
-            pNewField.DefaultValue_2 = 0.0
+            pNewField.DefaultValue_2 = -1.0
             pNewField.Precision_2 = 12
             pNewField.Scale_2 = 2
             pFieldsEdit.AddField(pNewField)
 
             pNewField = New Field
-            pNewField.Name_2 = "FCAscore"
+            pNewField.Name_2 = "FCA_score"
             pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
             pNewField.Length_2 = 14
-            pNewField.DefaultValue_2 = 0.0
+            pNewField.DefaultValue_2 = -1.0
             pNewField.Precision_2 = 12
             pNewField.Scale_2 = 8
             pFieldsEdit.AddField(pNewField)
@@ -693,7 +696,6 @@ Public Class s4_frmRun
             If chkdemandID.Checked Then
 
                 'Create an update cursor on the results table
-
                 Dim pOutputCursor As ICursor = pOutputTable.Update(Nothing, True)
                 Dim pOT_Row As IRow = pOutputCursor.NextRow()
 
@@ -701,7 +703,7 @@ Public Class s4_frmRun
                 Dim demandID As Integer
                 pOT_Row = pOutputCursor.NextRow()
                 Do Until pOT_Row Is Nothing
-                    demandID = pOT_Row.Value(1)
+                    demandID = pOT_Row.Value(2)
                     If demandList.ContainsKey(demandID) Then
                         pOT_Row.Value(5) = demandList.Item(demandID).count
                         pOT_Row.Value(6) = demandList.Item(demandID).sumdist / demandList.Item(demandID).count
@@ -714,7 +716,6 @@ Public Class s4_frmRun
             Else
 
                 'Create an update cursor on the results table
-
                 Dim pOutputCursor As ICursor = pOutputTable.Update(Nothing, True)
                 Dim pOT_Row As IRow = pOutputCursor.NextRow()
 
@@ -748,7 +749,7 @@ Public Class s4_frmRun
             MsgBox(ex.Message)
         End Try
 
-        Windows.Forms.MessageBox.Show("Computation completed." & vbCrLf & "Results recorded in dbf file..." & vbCrLf & resultsTable, _
+        Windows.Forms.MessageBox.Show("Run completed." & vbCrLf & "Outputs stored in dbf file..." & vbCrLf & resultsTable, _
                                              "Complete", Windows.Forms.MessageBoxButtons.OK, Windows.Forms.MessageBoxIcon.Information)
 
         System.Runtime.InteropServices.Marshal.ReleaseComObject(pOutputTable)
@@ -778,7 +779,7 @@ Public Class s4_frmRun
 #End Region
 
     Private Sub txtPath_DoubleClick(sender As System.Object, e As System.EventArgs) Handles txtPath.DoubleClick
-        'select path for output table using FolderBrowser dialog
+        'select a path for the output table using FolderBrowser dialog
         FolderBrowserDialog1.SelectedPath = My.Computer.FileSystem.SpecialDirectories.MyDocuments
         If FolderBrowserDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
             txtPath.Text = FolderBrowserDialog1.SelectedPath
@@ -787,7 +788,7 @@ Public Class s4_frmRun
     End Sub
 
     Private Sub btn4Prev_Click(sender As System.Object, e As System.EventArgs) Handles btn4Prev.Click
-
+        'save current folder for output dbf files
         Try
             Dim sw As System.IO.StreamWriter = New System.IO.StreamWriter("swfca-save.txt")
             sw.Write(txtPath.Text)

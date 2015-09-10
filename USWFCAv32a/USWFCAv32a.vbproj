@@ -109,6 +109,7 @@
       <DependentUpon>Config.esriaddinx</DependentUpon>
     </Compile>
     <Compile Include="configParams.vb" />
+    <Compile Include="ESRI_eg1.vb" />
     <Compile Include="fcaNAutils.vb" />
     <Compile Include="fcaUtilities.vb" />
     <Compile Include="frmActivityLog.Designer.vb">
@@ -221,7 +222,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="ESRI.ArcGIS.ArcMapUI">
       <Private>False</Private>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -46,9 +46,9 @@ Partial Class frmAbout
         Me.Label2.AutoSize = True
         Me.Label2.Location = New System.Drawing.Point(126, 54)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(50, 17)
+        Me.Label2.Size = New System.Drawing.Size(57, 17)
         Me.Label2.TabIndex = 1
-        Me.Label2.Text = "7-7-15"
+        Me.Label2.Text = "17.7-15"
         '
         'Label3
         '
@@ -104,7 +104,7 @@ Partial Class frmAbout
         Me.Label8.TabIndex = 7
         Me.Label8.Text = "university of south wales"
         '
-        'Form2
+        'frmAbout
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -120,8 +120,9 @@ Partial Class frmAbout
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.MaximizeBox = False
         Me.MinimizeBox = False
-        Me.Name = "Form2"
+        Me.Name = "frmAbout"
         Me.Text = "About the SW-FCA Add-In"
+        Me.TopMost = True
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
