@@ -64,12 +64,13 @@ Partial Class s1_frmIntroduction
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 15.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label2.Location = New System.Drawing.Point(159, 100)
+        Me.Label2.Location = New System.Drawing.Point(104, 100)
         Me.Label2.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(430, 58)
+        Me.Label2.Size = New System.Drawing.Size(555, 58)
         Me.Label2.TabIndex = 0
-        Me.Label2.Text = "Geographical Accessibility Scores" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(FCA and other common metrics)"
+        Me.Label2.Text = "Geographical Accessibility Scores" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(Floating Catchment Area and other metrics)"
+        Me.Label2.TextAlign = System.Drawing.ContentAlignment.TopCenter
         '
         'btnAbout
         '

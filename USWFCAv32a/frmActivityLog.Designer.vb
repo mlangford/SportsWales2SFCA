@@ -45,6 +45,7 @@ Partial Class frmActivityLog
         Me.MinimizeBox = False
         Me.Name = "frmActivityLog"
         Me.Text = "Network Analyst Report"
+        Me.TopMost = True
         Me.ResumeLayout(False)
         Me.PerformLayout()
 

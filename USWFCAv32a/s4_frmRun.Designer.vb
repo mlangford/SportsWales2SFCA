@@ -154,6 +154,7 @@ Partial Class s4_frmRun
         '
         'cboDemandIDField
         '
+        Me.cboDemandIDField.Enabled = False
         Me.cboDemandIDField.Font = New System.Drawing.Font("Microsoft Sans Serif", 7.8!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.cboDemandIDField.FormattingEnabled = True
         Me.cboDemandIDField.Location = New System.Drawing.Point(333, 11)

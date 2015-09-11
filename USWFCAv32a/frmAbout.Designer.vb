@@ -48,7 +48,7 @@ Partial Class frmAbout
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(57, 17)
         Me.Label2.TabIndex = 1
-        Me.Label2.Text = "17.7-15"
+        Me.Label2.Text = "10.9-15"
         '
         'Label3
         '

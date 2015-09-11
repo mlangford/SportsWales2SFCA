@@ -30,20 +30,20 @@ Public Class s2_frmSupplyDemand
 
         Dim list_item As layerItem
 
-        'store Supply points layer index in configObj
+        'store the supply points layer's map index in the configObj
         list_item = m_Pointlayers(cboSupplyPointsLayer.SelectedIndex)
         configObj.SupplyLayerIndex = list_item.position
 
-        'store Demand points layer index in configObj
+        'store the demand points layer's map index in the configObj
         list_item = m_Pointlayers(cboDemandPointsLayer.SelectedIndex)
         configObj.DemandLayerIndex = list_item.position
 
-        'store Supply Volume field index in configObj
+        'store the supply volume field index in the configObj
         configObj.SupplySelected = True
         list_item = m_FieldlistSup(cboSupplyVolumeField.SelectedIndex)
         configObj.SupplyVolumeField = list_item.position
 
-        'store Demand Volume field index in configObj
+        'store the demand volume field index in the configObj
         configObj.DemandSelected = True
         list_item = m_FieldlistDem(cboDemandVolumeField.SelectedIndex)
         configObj.DemandVolumeField = list_item.position
@@ -63,30 +63,30 @@ Public Class s2_frmSupplyDemand
     'List of point-data layer names and their map index positions
     Dim m_Pointlayers As List(Of layerItem)
 
-    'List of field names that could be a Supply Volume
+    'List of field names that could be used as the supply volume
     Dim m_FieldlistSup As List(Of layerItem)
 
-    'List of field names that could be a Demand Volume
+    'List of field names that could be used as the demand volume
     Dim m_FieldlistDem As List(Of layerItem)
 
 #End Region
 
-#Region "formLoad configuration"
+#Region "Form Load Configuration"
 
     Private Sub s2_frmSupplyDetails_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
 
-        'get a list of all Point data layers in the current map
-        m_Pointlayers = fcaUtilities.getPointLayers(-1)
+        'get a list of all Point data layers contained in the current map
+        m_Pointlayers = fcaUtilities.getPointlayers(-1)
 
         If m_Pointlayers.Count > 0 Then
-            'populate the layer selection dropdowns with this list
+            'populate both layer selection dropdowns with this list
             For Each list_item As layerItem In m_Pointlayers
                 cboSupplyPointsLayer.Items.Add(list_item.title)
                 cboDemandPointsLayer.Items.Add(list_item.title)
             Next
         Else
-            'or if no Point data layers are present, then issue a warning message
-            MessageBox.Show("**Error** - there are no layers containing point objects", _
+            'if no Point data layers were present, issue a warning message
+            MessageBox.Show("**Error** - there are no map layers containing point objects", _
                                             "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End If
 
@@ -108,17 +108,17 @@ Public Class s2_frmSupplyDemand
         m_FieldlistSup = fcaUtilities.getDatafields2(layer_item.position)
 
         If m_FieldlistSup.Count > 0 Then
-            'populate field selection dropdown with this list
+            'populate the field selection dropdown with this list
             cboSupplyVolumeField.Items.Clear()
             For Each field_item As layerItem In m_FieldlistSup
                 cboSupplyVolumeField.Items.Add(field_item.title)
             Next
-            'set field selection to the first item
+            'set the field selection initially to the first item
             cboSupplyVolumeField.SelectedIndex = 0
         Else
-            'or if no suitable fields are available, issue a warning message
+            'if no suitable fields are available, issue a warning message
             MessageBox.Show("Selected Supply Layer has no numeric fields" & Environment.NewLine _
-                                             & "     but one is needed for Supply Volume information", _
+                                             & "     but one is needed for the supply volume information", _
                                                  "**Information**", MessageBoxButtons.OK, MessageBoxIcon.Error)
             cboSupplyVolumeField.Items.Clear()
             cboSupplyVolumeField.ResetText()
@@ -143,17 +143,17 @@ Public Class s2_frmSupplyDemand
         m_FieldlistDem = fcaUtilities.getDatafields2(layer_item.position)
 
         If m_FieldlistDem.Count > 0 Then
-            'populate field selection dropdown with this list
+            'populate the field selection dropdown with this list
             cboDemandVolumeField.Items.Clear()
             For Each field_item As layerItem In m_FieldlistDem
                 cboDemandVolumeField.Items.Add(field_item.title)
             Next
-            'set the field selection to the first item in the list
+            'set the field selection initially to the first item
             cboDemandVolumeField.SelectedIndex = 0
         Else
-            'or if no suitable fields are available, issue a warning message
+            'if no suitable fields are available, issue a warning message
             MessageBox.Show("Selected Demand Layer has no numeric fields" & Environment.NewLine _
-                                             & "     but one is needed for Demand Volume information", _
+                                             & "     but one is needed for the demand volume information", _
                                                  "**Information**", MessageBoxButtons.OK, MessageBoxIcon.Error)
             cboDemandVolumeField.Items.Clear()
             cboDemandVolumeField.ResetText()
@@ -166,10 +166,17 @@ Public Class s2_frmSupplyDemand
 
 #End Region
 
+#Region "Utility"
+
     Private Sub checkComplete()
-        Dim ok As Boolean = (cboSupplyPointsLayer.SelectedIndex > -1) And (cboDemandPointsLayer.SelectedIndex > -1) _
-                                And (cboSupplyVolumeField.SelectedIndex > -1) And (cboDemandVolumeField.SelectedIndex > -1)
+        'Determines if the "next form" button should be made available
+        Dim ok As Boolean = (cboSupplyPointsLayer.SelectedIndex > -1) _
+                                 And (cboDemandPointsLayer.SelectedIndex > -1) _
+                                 And (cboSupplyVolumeField.SelectedIndex > -1) _
+                                 And (cboDemandVolumeField.SelectedIndex > -1)
         btn2Next.Enabled = ok
     End Sub
+
+#End Region
 
 End Class

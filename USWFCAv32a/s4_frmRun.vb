@@ -1,10 +1,11 @@
 ﻿Imports ESRI.ArcGIS.ArcMapUI
 Imports ESRI.ArcGIS.Carto
 Imports ESRI.ArcGIS.DataSourcesFile
+Imports ESRI.ArcGIS.esriSystem
 Imports ESRI.ArcGIS.Geodatabase
 Imports ESRI.ArcGIS.Geoprocessing
 Imports ESRI.ArcGIS.NetworkAnalyst
-Imports ESRI.ArcGIS.esriSystem
+
 
 Public Class s4_frmRun
 
@@ -37,33 +38,37 @@ Public Class s4_frmRun
     'Folder location for the results table
     Dim outpath As String
 
-    'List of field names in the Demand points layer
+    'List of field names in the demand points layer
     Dim m_FieldlistDem As List(Of layerItem)
 
 #End Region
 
+#Region "Form Load Configuration"
+
     Private Sub s5_frmResults_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
 
         Try
-            'If configuration file found with retained folder name, read and use
+            'If the configuration file is found for with a retained folder name, read and use it
             If System.IO.File.Exists("swfca-save.txt") Then
                 Dim sr As System.IO.StreamReader = New System.IO.StreamReader("swfca-save.txt")
                 outpath = sr.ReadLine()
                 sr.Close()
                 txtPath.Text = outpath
-
-            Else    'otherwise set to My Documents folder
+            Else    'otherwise set the output location to be the My Documents folder
                 txtPath.Text = My.Computer.FileSystem.SpecialDirectories.MyDocuments
             End If
         Catch ex As Exception
             txtPath.Text = My.Computer.FileSystem.SpecialDirectories.MyDocuments
         End Try
 
+        'By default scale output scores by x1000
         cboScale.SelectedIndex = 3
 
     End Sub
 
-#Region "computes accessibility scores"
+#End Region
+
+#Region "Compute accessibility scores"
 
     Private Sub btnExecute_Click(sender As System.Object, e As System.EventArgs) Handles btnExecute.Click
 
@@ -80,6 +85,7 @@ Public Class s4_frmRun
 
         Dim inputFL As IFeatureLayer = Nothing
         Dim inputFC As IFeatureClass = Nothing
+        Dim pDisplayTable1 As IDisplayTable = Nothing
         Dim f2 As frmActivityLog = Nothing
 
         btnExecute.Enabled = False
@@ -95,13 +101,13 @@ Public Class s4_frmRun
         'set the TOC to the "Contents View tab"
         pMxDoc.CurrentContentsView = pMxDoc.ContentsView(0)
 
-        'track from layer -> network layer -> network dataset
+        'track from the layer -> to the network layer -> to the network dataset
         pLayer = pMap.Layer(configObj.NWlayerindex)
         pNWLayer = pLayer
         pNWdataset = pNWLayer.NetworkDataset
 
         '** CF solving **
-        Dim OIDname As String
+        Dim loadString As String
 
         'set NAContext as a ClosestFacility solver
         pNAContext1 = fcaNAcreateClosestsolver(pNWdataset)
@@ -117,36 +123,39 @@ Public Class s4_frmRun
         pNALayer.Expanded = False
         pMap.MoveLayer(pLayer, pMap.LayerCount - 1) 'move it to the bottom of the TOC
 
-        'load up 'Facilities' (ie Supply) from the selected Feature layer
-        pLayer = pMap.Layer(configObj.SupplyLayerIndex)
-        inputFL = pLayer                                                       'track from ILayer -> IFeatureLayer
-        inputFC = inputFL.FeatureClass                                  'track from IFeatureLayer -> IFeatureClass
-        OIDname = inputFC.OIDFieldName                            'get the name of the OID field
-
         'create a Geoprocessor tool and a parameters arrray
         Dim gp As IGeoProcessor2 = New GeoProcessor
         Dim params As IVariantArray = New VarArrayClass
 
-        'fill parameters for CF tool, then load the facilities (supply) points
+        'load the 'Facilities' (ie supply points) from the selected Feature layer
+
+        'cast to IDisplayTable to access the fields in a joined table
+        pLayer = pMap.Layer(configObj.SupplyLayerIndex)
+        pDisplayTable1 = pLayer
+        loadString = fcaUtilities.getNALoadString(pDisplayTable1)
+
+        'fill parameters for CF tool, then load the points
         params.Add(pNALayer)
         params.Add("Facilities")
-        params.Add(inputFL)
-        params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
+        params.Add(pDisplayTable1)
+        params.Add(loadString)
         gp.Execute("AddLocations_na", params, Nothing)
 
-        'load up 'Incidents' (ie Demand) from the selected Feature Layer
-        pLayer = pMap.Layer(configObj.DemandLayerIndex)
-        inputFL = pLayer
-        inputFC = inputFL.FeatureClass
-        OIDname = inputFC.OIDFieldName
+        'load the 'Incidents' (ie demand points) from the selected Feature Layer
 
-        'remove previous parameters
+        'cast to IDisplayTable to access the fields in a joined table
+        pLayer = pMap.Layer(configObj.DemandLayerIndex)
+        pDisplayTable1 = pLayer
+        loadString = fcaUtilities.getNALoadString(pDisplayTable1)
+
+        'clear previous parameters
         params.RemoveAll()
-        'fill parameters for CF tool, then load the incidents (demand) points
+
+        'fill parameters for CF tool, then load the points
         params.Add(pNALayer)
         params.Add("Incidents")
-        params.Add(inputFL)
-        params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
+        params.Add(pDisplayTable1)
+        params.Add(loadString)
         gp.Execute("AddLocations_na", params, Nothing)
 
         'solve the network analyst Closest Facility problem
@@ -157,8 +166,9 @@ Public Class s4_frmRun
         Try
 
             Dim gpMessages1 As IGPMessages = New GPMessages
-            Dim isPartial As Boolean = pNAContext1.Solver.Solve(pNAContext1, gpMessages1, Nothing)      'Solve CF !!
+            Dim isPartial As Boolean = pNAContext1.Solver.Solve(pNAContext1, gpMessages1, Nothing)   'Solve !!
 
+            'If requested provide feedback to user
             If chkShowlog.Checked Then
                 If isPartial Then
                     f2.txtLog.AppendText("Closest Facility  ...partial solution found" & vbCrLf)
@@ -204,34 +214,38 @@ Public Class s4_frmRun
         pNALayer.Expanded = False
         pMap.MoveLayer(pLayer, pMap.LayerCount - 1) 'move it to the bottom of the TOC
 
-        'load the 'Origins' (ie Supply) from the selected Feature Layer
-        pLayer = pMap.Layer(configObj.SupplyLayerIndex)
-        inputFL = pLayer
-        inputFC = inputFL.FeatureClass
-        OIDname = inputFC.OIDFieldName
+        'load the 'Origins' (ie supply points) from the selected Feature Layer
 
-        'remove previous parameters
+        'cast to IDisplayTable to access the fields in a joined table
+        pLayer = pMap.Layer(configObj.SupplyLayerIndex)
+        pDisplayTable1 = pLayer
+        loadString = fcaUtilities.getNALoadString(pDisplayTable1)
+
+        'clear previous parameters
         params.RemoveAll()
-        'fill parameters for OD tool, then load the Origin (supply) points
+
+        'fill parameters for OD tool, then load the points
         params.Add(pNALayer)
         params.Add("Origins")
-        params.Add(inputFL)
-        params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
+        params.Add(pDisplayTable1)
+        params.Add(loadString)
         gp.Execute("AddLocations_na", params, Nothing)
 
-        'load the 'Destinations' (ie Demand) from the selected Feature Layer
-        pLayer = pMap.Layer(configObj.DemandLayerIndex)
-        inputFL = pLayer
-        inputFC = inputFL.FeatureClass
-        OIDname = inputFC.OIDFieldName
+        'load the 'Destinations' (ie demand points ) from the selected Feature Layer
 
-        'remove previous parameters
+        'cast to IDisplayTable to access the fields in a joined table
+        pLayer = pMap.Layer(configObj.DemandLayerIndex)
+        pDisplayTable1 = pLayer
+        loadString = fcaUtilities.getNALoadString(pDisplayTable1)
+
+        'clear previous parameters
         params.RemoveAll()
-        'fill parameters for OD tool, then load the Destination (demand) points
+
+        'fill parameters for OD tool, then load the points
         params.Add(pNALayer)
         params.Add("Destinations")
-        params.Add(inputFL)
-        params.Add("SourceID SourceID #; SourceOID SourceOID #; PosAlong PosAlong #; SideOfEdge SideOfEdge #; Name " & OIDname & " #")
+        params.Add(pDisplayTable1)
+        params.Add(loadString)
         gp.Execute("AddLocations_na", params, Nothing)
 
         'solve the network analyst OD Matrix problem
@@ -242,8 +256,9 @@ Public Class s4_frmRun
         Try
 
             Dim gpMessages2 As IGPMessages = New GPMessages
-            Dim isPartial As Boolean = pNAContext2.Solver.Solve(pNAContext2, gpMessages2, Nothing) 'Solve OD !!
+            Dim isPartial As Boolean = pNAContext2.Solver.Solve(pNAContext2, gpMessages2, Nothing) 'Solve !!
 
+            'If requested provide feedback to user
             If chkShowlog.Checked Then
                 If isPartial Then
                     f2.txtLog.AppendText("OD matrix         ...partial solution found" & vbCrLf)
@@ -272,7 +287,6 @@ Public Class s4_frmRun
             If chkShowlog.Checked Then f2.txtLog.AppendText(vbCrLf & "Network Analyst error message: " & vbCrLf & ex.Message & vbCrLf)
         End Try
 
-
         '** accessibility scores **
 
         Dim pDataset As IDataset = Nothing
@@ -288,7 +302,7 @@ Public Class s4_frmRun
         inputFL = pMap.Layer(configObj.DemandLayerIndex)
         inputFC = inputFL.FeatureClass
         pDataset = inputFC
-        'cast to ITable
+        'cast through to ITable
         pDisplayTable = inputFL
         pTable = pDisplayTable.DisplayTable
 
@@ -337,7 +351,7 @@ Public Class s4_frmRun
 
             'if requested, copy additional demand ID field
             If chkdemandID.Checked Then
-                pOldField = inputFC.Fields.Field(cboDemandIDField.SelectedIndex)
+                pOldField = pTable.Fields.Field(cboDemandIDField.SelectedIndex)
                 'copy field to results table
                 pNewField = New Field
                 pNewField.Name_2 = pOldField.Name
@@ -527,6 +541,8 @@ Public Class s4_frmRun
         supplyIDs = Nothing
         distances = Nothing
 
+        Windows.Forms.MessageBox.Show("OK1")
+
 
         ' ** FCA Step1 - compute demand totals at each supply (Origin) point  **
 
@@ -556,7 +572,7 @@ Public Class s4_frmRun
 
             'create a pointer to the demand points attribute table (as ITable)
             inputFL = pMap.Layer(configObj.DemandLayerIndex)
-            inputFC = inputFL.FeatureClass
+            '  inputFC = inputFL.FeatureClass
             pDisplayTable = inputFL
             pTable = pDisplayTable.DisplayTable
 
@@ -579,7 +595,7 @@ Public Class s4_frmRun
                 distance = pODrow.Value(idxImpedance)
 
                 'look up the demand point's Volume value
-                pDemand_QF.WhereClause = inputFC.OIDFieldName & " = " & demandID
+                pDemand_QF.WhereClause = pTable.OIDFieldName & " = " & demandID
                 pDemand_FC = pTable.Search(pDemand_QF, True)
                 pDemand_Feature = pDemand_FC.NextFeature
                 demandValue = pDemand_Feature.Value(configObj.DemandVolumeField)
@@ -587,7 +603,7 @@ Public Class s4_frmRun
                 'scale demand value using distance-decay model
                 demandValue = dist_weighted(demandValue, distance, configObj)
 
-                'check if this Supply point exists in the dictionary
+                'check if this supply point exists in the dictionary
                 If demandTotals.ContainsKey(supplyID) Then
                     'YES: add current demand volume to on-going total
                     demandTotals.Item(supplyID) += demandValue
@@ -603,13 +619,6 @@ Public Class s4_frmRun
             Windows.Forms.MessageBox.Show(ex.Message)
         End Try
 
-        'Dim pair As KeyValuePair(Of Integer, Double)
-        'For Each pair In demandTotals
-        '     Display Key and Value.
-        '    f2.txtLog.AppendText(pair.Key & " -- " & pair.Value & vbCrLf)
-        'Next
-
-
         ' ** FCA Step2 - calculate availability scores at each demand (Destination) point **
         Label1.Text = "computing FCA scores - step 2"
         System.Windows.Forms.Application.DoEvents()
@@ -622,7 +631,7 @@ Public Class s4_frmRun
 
             'create a pointer to the supply points attribute table (as ITable)
             inputFL = pMap.Layer(configObj.SupplyLayerIndex)
-            inputFC = inputFL.FeatureClass
+            '      inputFC = inputFL.FeatureClass
             pDisplayTable = inputFL
             pTable = pDisplayTable.DisplayTable
 
@@ -639,8 +648,8 @@ Public Class s4_frmRun
                 distance = pODrow.Value(idxImpedance)
 
                 'look up the supply point's Volume value
-                pDemand_QF.WhereClause = inputFC.OIDFieldName & " = " & supplyID
-                pDemand_FC = inputFC.Search(pDemand_QF, True)
+                pDemand_QF.WhereClause = pTable.OIDFieldName & " = " & supplyID
+                pDemand_FC = pTable.Search(pDemand_QF, True)
                 pDemand_Feature = pDemand_FC.NextFeature
                 supplyValue = pDemand_Feature.Value(configObj.SupplyVolumeField) * ScaleFactor
 
@@ -749,6 +758,9 @@ Public Class s4_frmRun
             MsgBox(ex.Message)
         End Try
 
+        Label1.Text = "Run completed"
+        System.Windows.Forms.Application.DoEvents()
+
         Windows.Forms.MessageBox.Show("Run completed." & vbCrLf & "Outputs stored in dbf file..." & vbCrLf & resultsTable, _
                                              "Complete", Windows.Forms.MessageBoxButtons.OK, Windows.Forms.MessageBoxIcon.Information)
 
@@ -806,6 +818,8 @@ Public Class s4_frmRun
     End Sub
 
     Private Sub chkdemandID_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkdemandID.CheckedChanged
+
+        cboDemandIDField.Enabled = chkdemandID.Checked
 
         If chkdemandID.Checked Then
 

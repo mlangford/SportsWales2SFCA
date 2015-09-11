@@ -1,18 +1,18 @@
 ﻿Module fcaStructures
 
-    'Enumerates the distance-decay types used in Enhanced 2SFCA
+    'Enumerates the distance-decay types available
     Public Enum decayType
         Classic
         Linear
     End Enum
 
-    'Stores a layer name and corresponding index position
+    'Stores a layer name and its corresponding map index position
     Public Structure layerItem
         Public title As String
         Public position As Integer
     End Structure
 
-    'Facilitates tallying of results in Step 2 of the FCA analysis
+    'Facilitates the tallying up of results during Step 2 of the FCA analysis
     Public Class destObj
         Public count As Double = 0.0
         Public sumdist As Double = 0.0

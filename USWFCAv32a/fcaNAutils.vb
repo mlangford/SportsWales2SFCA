@@ -7,7 +7,7 @@ Module fcaNAutils
 
     Public Function fcaNAgetdataelement(ByVal pNWDataset As INetworkDataset) As IDENetworkDataset
 
-        Dim dsComponent As IDatasetComponent = pNWDataset     'QI from NW Dataset to DatasetComponent
+        Dim dsComponent As IDatasetComponent = pNWDataset     'QI to the DatasetComponent
         Return dsComponent.DataElement                                      'get Data Element
 
     End Function
@@ -83,16 +83,14 @@ Module fcaNAutils
 
     Public Function fcaNAcreateODsolver(ByVal pNWDataset As INetworkDataset) As INAContext
 
-        Dim naSolver As INASolver = Nothing
         Dim deNDS As IDENetworkDataset = Nothing
+        Dim naSolver As INASolver = Nothing
         Dim contextEdit As INAContextEdit = Nothing
 
-        naSolver = New NAODCostMatrixSolver
         deNDS = fcaNAgetdataelement(pNWDataset) 'get data element
+        naSolver = New NAODCostMatrixSolver
         contextEdit = naSolver.CreateContext(deNDS, naSolver.Name)
 
-        'Dim gpMessages3 As ESRI.ArcGIS.Geodatabase.IGPMessages = New ESRI.ArcGIS.Geodatabase.GPMessages
-        'contextEdit.Bind(pNWDataset, gpMessages3)
         contextEdit.Bind(pNWDataset, New GPMessages)
 
         Return contextEdit

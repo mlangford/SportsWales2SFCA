@@ -49,17 +49,17 @@ Public Class s3_frmFCASettings
         configObj.NWlayerindex = list_item.position
         configObj.NWimpedanceField = cboCostField.Text
 
-        'store FCA method
+        'store the FCA computation method
         If (cboDecayModel.SelectedIndex = 0) Then
             configObj.filter = decayType.Classic
         Else
             configObj.filter = decayType.Linear
         End If
 
-        'store FC threshold size
+        'store the FCA catchment threshold size
         configObj.NWdefCutOff = Convert.ToDouble(txtCutOff.Text)
 
-        'display next form
+        'display the next form
         Dim p_s4frmRun As New s4_frmRun(configObj)
         p_s4frmRun.Location = Me.Location
         p_s4frmRun.Show()
@@ -71,22 +71,22 @@ Public Class s3_frmFCASettings
 
 #Region "globals"
 
-    'list of Network Dataset names/index positions
+    'list of Network Dataset names and their index positions
     Dim m_NWlayers As ArrayList
 
     'list of units for 'Cost' type attributes in the chosen network dataset
     Dim m_costFieldUnits As ArrayList = New ArrayList
 
-    'flag to indicate if entered threshold value is valid
+    'a flag used to indicate if the entered threshold value is valid
     Dim cutoffOK As Boolean = False
 
 #End Region
 
-#Region "formLoad configuration"
+#Region "Form Load Configuration"
 
     Private Sub s3_frmNetworkLayers_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
 
-        'get a list of Network data layers in the current map
+        'get a list of all Network data layers in the current map
         m_NWlayers = fcaUtilities.getNWLayers()
 
         If m_NWlayers.Count > 0 Then
@@ -96,8 +96,8 @@ Public Class s3_frmFCASettings
             Next
             cboNWdataset.SelectedIndex = 0
         Else
-            'or if no Network data layers are present, then issue a warning message
-            MessageBox.Show("**Error** - there are no layers containing a network dataset", _
+            'if no Network data layers are present, then issue a warning message
+            MessageBox.Show("**Error** - there are no map layers containing a network dataset", _
                                          "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End If
 
@@ -108,7 +108,7 @@ Public Class s3_frmFCASettings
 
 #End Region
 
-#Region "user selects Network dataset"
+#Region "Create List of Network Impedance fields"
 
     Private Sub cboNWdataset_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboNWdataset.SelectedIndexChanged
 
@@ -129,9 +129,8 @@ Public Class s3_frmFCASettings
         pNWLayer = pLayer
         pNWdataset = pNWLayer.NetworkDataset
 
-        'get all Cost attributes and populate dropdown
+        'get all Cost type attributes and use to populate the dropdown list
         Try
-
             cboCostField.Items.Clear()
             m_costFieldUnits.Clear()
 
@@ -144,11 +143,11 @@ Public Class s3_frmFCASettings
             Next
 
             If pNWdataset.AttributeCount > 0 Then
-                'set Cost field to first item
+                'set the Cost field to the first item
                 cboCostField.SelectedIndex = 0
             Else
-                'or if no cost field is present, issue a warning message
-                MessageBox.Show("**Error** - no Cost field found in the selected Network Dataset", _
+                'if no cost field is present, issue a warning message
+                MessageBox.Show("**Error** - no Cost field was found in the selected Network Dataset", _
                                                 "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 cboCostField.SelectedIndex = -1
             End If
@@ -163,27 +162,13 @@ Public Class s3_frmFCASettings
 
 #End Region
 
-    'Validate the catchment threshold value on Leave event
-    'Private Sub txtCutOff_Leave(sender As System.Object, e As System.EventArgs) Handles txtCutOff.Leave
-    '    Try
-    '        Dim d As Double = Convert.ToDouble(txtCutOff.Text)
-    '        cutoffOK = (d > 0.0)
-    '        If Not cutoffOK Then
-    '            MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine, _
-    '                                        "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
-    '            cutoffOK = False
-    '        End If
-    '    Catch ex As Exception
-    '        MessageBox.Show("- enter a numeric value greater than 0.0 for the threshold" & Environment.NewLine _
-    '                                        & ex.Message, "**ERROR**", MessageBoxButtons.OK, MessageBoxIcon.Error)
-    '        cutoffOK = False
-    '    End Try
-    '    checkComplete()
-    'End Sub
+#Region "Utility"
 
     Private Sub checkComplete()
-        Dim ok As Boolean = (cboNWdataset.SelectedIndex > -1) And (cboCostField.SelectedIndex > -1) _
-                                And (cboDecayModel.SelectedIndex > -1) And cutoffOK
+        Dim ok As Boolean = (cboNWdataset.SelectedIndex > -1) _
+                                 And (cboCostField.SelectedIndex > -1) _
+                                 And (cboDecayModel.SelectedIndex > -1) _
+                                 And cutoffOK
         btn3Next.Enabled = ok
     End Sub
 
@@ -191,4 +176,7 @@ Public Class s3_frmFCASettings
         Double.TryParse(txtCutOff.Text, cutoffOK)
         checkComplete()
     End Sub
+
+#End Region
+
 End Class

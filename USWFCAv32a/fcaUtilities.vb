@@ -1,4 +1,5 @@
-﻿Imports System.Windows.Forms
+﻿Imports System.Text
+Imports System.Windows.Forms
 Imports ESRI.ArcGIS.ArcMapUI
 Imports ESRI.ArcGIS.Carto
 Imports ESRI.ArcGIS.Geodatabase
@@ -6,11 +7,10 @@ Imports ESRI.ArcGIS.Geometry
 
 Module fcaUtilities
 
-#Region "getNWlayers"
+#Region "Get Network Layers"
 
-    'Returns an arraylist with names & index positions of
-    'all Network Dataset layers in the current focus map
-
+    'Returns an arraylist with the names and index positions of
+    'all the Network Dataset layers in the current focus map
     Function getNWLayers() As ArrayList
 
         Dim listNWlayers As New ArrayList
@@ -39,12 +39,11 @@ Module fcaUtilities
 
 #End Region
 
-#Region "getPointlayers"
+#Region "Get Point Layers"
 
-    'Returns a list of layerItems carrying the names & index
-    'positions of all point data layers. if the omit parameter > 0,
-    'the layer with this index value is ommitted from the list
-
+    'Returns a list of layerItems carrying the name and index
+    'position of all point data layers. If the omit parameter is > 0,
+    'then the layer with this index value is ommitted from the list
     Function getPointlayers(omit As Integer) As List(Of layerItem)
 
         Dim list_item As layerItem
@@ -82,11 +81,10 @@ Module fcaUtilities
 
 #End Region
 
-#Region "getDatafields"
+#Region "Get Data Fields"
 
-    'Returns a list of LayerItems carrying the names & index positions of all numeric 
-    'data attribute fields in the Feature Class located at the passed index position 
-
+    'Returns a list of layerItems carrying the name and index position of all numeric 
+    'data attribute fields within the Feature Class located at the passed index position 
     Function getDatafields(layerIndex As Integer) As List(Of layerItem)
 
         Dim list_Fields As New List(Of layerItem)
@@ -124,9 +122,8 @@ Module fcaUtilities
     End Function
 
 
-    'Returns a list of layerItems carrying the names & index positions of all numeric
-    'data attribute fields in Table of Feature Class located at the passed index position 
-
+    'Returns a list of layerItems carrying the name and index position of all numeric data
+    'attribute fields in the Table of the Feature Class located at the passed index position 
     Function getDatafields2(layerIndex As Integer) As List(Of layerItem)
 
         Dim list_Fields As New List(Of layerItem)
@@ -166,9 +163,8 @@ Module fcaUtilities
     End Function
 
 
-    'Returns a list of layerItems carrying the names & index positions of all attribute
-    'fields in Table of Feature Class located at the passed index position
-
+    'Returns a list of layerItems carrying the name and index position of all attribute
+    'fields in the Table of the Feature Class located at the passed index position
     Function getDatafields3(layerIndex As Integer) As List(Of layerItem)
 
         Dim list_Fields As New List(Of layerItem)
@@ -193,9 +189,9 @@ Module fcaUtilities
             'cycle through each field and add to list
             For i As Integer = 0 To pFields.FieldCount - 1
                 pField = pFields.Field(i)
-                    list_item.title = pField.Name
-                    list_item.position = i
-                    list_Fields.Add(list_item)
+                list_item.title = pField.Name
+                list_item.position = i
+                list_Fields.Add(list_item)
             Next
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Error: getDatafields3", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -209,7 +205,7 @@ Module fcaUtilities
 
 #Region "distance-decay scaling function"
 
-    'Scales passed quantity by a distance-based weight using selected decay function 
+    'Scales the passed quantity by a distance-based weight using a linear decay function 
     Public Function dist_weighted(ByRef quantity As Double, ByRef distance As Double, m_configObj As configParams) As Double
 
         If m_configObj.filter = decayType.Classic Then
@@ -224,7 +220,73 @@ Module fcaUtilities
 
 #End Region
 
+#Region "Build NA load string"
 
+    'Returns a NA load string using the full names of and joined fields
+    Function getNALoadString(displayTable As IDisplayTable) As String
+
+        Dim builder As New StringBuilder
+
+        Dim pTable As ITable = displayTable.DisplayTable
+        Dim pFields As IFields = Nothing
+        Dim pField As IField = Nothing
+
+        'Build a string that identifies the field names of the network locations infromation
+        
+        pFields = pTable.Fields
+
+        builder.Append("SourceID ")
+        For i As Integer = 0 To pFields.FieldCount - 1
+            pField = pFields.Field(i)
+            If pField.Name.Contains("SourceID") Then
+                builder.Append(pField.Name)
+                builder.Append(" #; ")
+                Exit For
+            End If
+        Next
+
+        builder.Append("SourceOID ")
+        For i As Integer = 0 To pFields.FieldCount - 1
+            pField = pFields.Field(i)
+            If pField.Name.Contains("SourceOID") Then
+                builder.Append(pField.Name)
+                builder.Append(" #; ")
+                Exit For
+            End If
+        Next
+
+        builder.Append("PosAlong ")
+        For i As Integer = 0 To pFields.FieldCount - 1
+            pField = pFields.Field(i)
+            If pField.Name.Contains("PosAlong") Then
+                builder.Append(pField.Name)
+                builder.Append(" #; ")
+                Exit For
+            End If
+        Next
+
+        builder.Append("SideOfEdge ")
+        For i As Integer = 0 To pFields.FieldCount - 1
+            pField = pFields.Field(i)
+            If pField.Name.Contains("SideOfEdge") Then
+                builder.Append(pField.Name)
+                builder.Append(" #; ")
+                Exit For
+            End If
+        Next
+
+        builder.Append("Name ")
+        builder.Append(displayTable.DisplayTable.OIDFieldName)
+        builder.Append("  #")
+
+        getNALoadString = builder.ToString()
+
+    End Function
+#End Region
+
+#Region "Utility"
+
+    'Used during program development: displays the current state of the configObj
     Sub showconfigParams(ByRef cObject As configParams)
 
         Dim f2 As New frmActivityLog
@@ -243,5 +305,7 @@ Module fcaUtilities
         f2.txtLog.AppendText("Res Location   " & cObject.ResultsLocation.ToString & vbCrLf)
         f2.txtLog.AppendText("Filter type " & cObject.filter.ToString & vbCrLf)
     End Sub
+
+#End Region
 
 End Module

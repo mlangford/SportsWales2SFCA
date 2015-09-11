@@ -118,9 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="TextBox1.Text" xml:space="preserve">
-    <value>This ArcGIS Add-In tool computes geographical accessibility scores using Floating Catchment Area and other methods. It requires a map layer of points to represent the locations of service supply, and another to represent the locations of service demand. An ESRI Network Layer is also needed to compute travel time/distance between these two inputs. The points in both layers must be "pre-snapped" onto the network layer (see the "Calculate Locations" tool in Network Analyst Toolbox).
+    <value>ArcGIS Add-In tool to compute geographical accessibility scores using Floating Catchment Area and other methods. This requires two map layers containing points objects that represent the locations of service supply and service demand respectively. An ESRI Network Layer is also needed to compute travel times/distances between these inputs. The supply and demand points in the input layers must be "pre-snapped" onto the choosen network layer (e.g. using the "Calculate Locations" tool in the Network Analyst Toolbox).
 
-FCA scores and other computed accessibility metrics are output to an ArcGIS table. The FCA scores are based either on the 'classic' or the 'enhanced' algorithms. For further instruction, see accompanying documentation. 
+FCA scores and other accessibility metrics are output to an ArcGIS table. FCA scores may be based on either the 'classic' (no distance decay) or the 'enhanced' (linear distance decay) algorithm. For further instructions, see the accompanying documentation. 
 
 Click the right-arrow to begin...</value>
   </data>

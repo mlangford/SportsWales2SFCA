@@ -40,40 +40,34 @@ Public Class s1_frmIntroduction
 
 #End Region
 
-#Region "display list of Cost fields in selected NW layer"
+#Region "About information"
 
-    Private Sub cboNWdataset_SelectedIndexChanged(sender As System.Object, e As System.EventArgs)
-
-
-
+    'Display "About" information
+    Private Sub btnAbout_Click(sender As System.Object, e As System.EventArgs) Handles btnAbout.Click
+        Dim fA As New frmAbout
+        fA.ShowDialog()
     End Sub
-
-    ''display Cost field's Units
-    'Private Sub cboCostField_SelectedIndexChanged(sender As System.Object, e As System.EventArgs)
-    '    Dim str() As String = Split(m_costFieldUnits(cboCostField.SelectedIndex), "esriNAU")
-    '    lblUnits.Text = str(1)
-    'End Sub
 
 #End Region
 
-    Private Sub btnABOUT_Click(sender As System.Object, e As System.EventArgs) Handles btnAbout.Click
-        Dim f As New frmAbout
-        f.ShowDialog()
-    End Sub
+#Region "Licence check"
 
     Private Sub s1_frmIntroduction_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
 
-        Dim aoLicenseInitializer As LicenseInitializer
-        aoLicenseInitializer = New LicenseInitializer
+        'Dim aoLicenseInitializer As LicenseInitializer
+        'aoLicenseInitializer = New LicenseInitializer
 
-        'ESRI License Initializer generated code.
-        If (Not aoLicenseInitializer.InitializeApplication(New esriLicenseProductCode() {esriLicenseProductCode.esriLicenseProductCodeEngine, esriLicenseProductCode.esriLicenseProductCodeBasic, esriLicenseProductCode.esriLicenseProductCodeStandard, esriLicenseProductCode.esriLicenseProductCodeAdvanced}, _
-        New esriLicenseExtensionCode() {esriLicenseExtensionCode.esriLicenseExtensionCodeNetwork, esriLicenseExtensionCode.esriLicenseExtensionCodeAeronautical})) Then
-            MessageBox.Show("This AddIn cannot be used as you do not have the required ArcGIS licenses: " + aoLicenseInitializer.LicenseMessage())
-            'aoLicenseInitializer.ShutdownApplication()
-            btn1Next.Enabled = False
-            Return
-        End If
+        ''ESRI License Initializer generated code.
+        'If (Not aoLicenseInitializer.InitializeApplication(New esriLicenseProductCode() {esriLicenseProductCode.esriLicenseProductCodeEngine, esriLicenseProductCode.esriLicenseProductCodeBasic, esriLicenseProductCode.esriLicenseProductCodeStandard, esriLicenseProductCode.esriLicenseProductCodeAdvanced}, _
+        'New esriLicenseExtensionCode() {esriLicenseExtensionCode.esriLicenseExtensionCodeNetwork, esriLicenseExtensionCode.esriLicenseExtensionCodeAeronautical})) Then
+        '    MessageBox.Show("This AddIn cannot be used as you do not have the required ArcGIS licenses: " + aoLicenseInitializer.LicenseMessage(), "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        '    'aoLicenseInitializer.ShutdownApplication()
+        '    btn1Next.Enabled = False
+        '    Return
+        'End If
 
     End Sub
+
+#End Region
+
 End Class
