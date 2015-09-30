@@ -87,11 +87,10 @@ Partial Class s1_frmIntroduction
         Me.btn1Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn1Next.ForeColor = System.Drawing.Color.White
         Me.btn1Next.Image = Global.USWFCAv32a.My.Resources.Resources.nextB
-        Me.btn1Next.ImageAlign = System.Drawing.ContentAlignment.TopLeft
-        Me.btn1Next.Location = New System.Drawing.Point(652, 435)
+        Me.btn1Next.Location = New System.Drawing.Point(618, 430)
         Me.btn1Next.Margin = New System.Windows.Forms.Padding(4)
         Me.btn1Next.Name = "btn1Next"
-        Me.btn1Next.Size = New System.Drawing.Size(55, 54)
+        Me.btn1Next.Size = New System.Drawing.Size(95, 55)
         Me.btn1Next.TabIndex = 0
         Me.btn1Next.UseVisualStyleBackColor = True
         '
@@ -122,7 +121,7 @@ Partial Class s1_frmIntroduction
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(740, 503)
+        Me.ClientSize = New System.Drawing.Size(740, 511)
         Me.Controls.Add(Me.PictureBox10)
         Me.Controls.Add(Me.btnAbout)
         Me.Controls.Add(Me.btn1Next)

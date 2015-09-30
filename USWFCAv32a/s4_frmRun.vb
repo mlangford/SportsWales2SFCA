@@ -287,7 +287,8 @@ Public Class s4_frmRun
             If chkShowlog.Checked Then f2.txtLog.AppendText(vbCrLf & "Network Analyst error message: " & vbCrLf & ex.Message & vbCrLf)
         End Try
 
-        '** accessibility scores **
+
+        '** compute accessibility scores **
 
         Dim pDataset As IDataset = Nothing
         Dim pDisplayTable As IDisplayTable = Nothing
@@ -316,7 +317,6 @@ Public Class s4_frmRun
 
         'create a pointer for the results table
         Dim pOutputTable As ITable = Nothing
-
         'construct the results table 
         Dim resultsTable As String = ""
         Try
@@ -439,7 +439,6 @@ Public Class s4_frmRun
         Dim pCF_Cursor As ICursor = Nothing
         Dim pCF_Row As IRow
 
-
         'stores the index position of the Incident, Facility, Impedance and Name fields
         Dim idxIncident, idxFacility, idxImpedance, idxName As Integer
         Dim impedanceField As String = "Total_" & configObj.NWimpedanceField
@@ -541,13 +540,25 @@ Public Class s4_frmRun
         supplyIDs = Nothing
         distances = Nothing
 
-        Windows.Forms.MessageBox.Show("OK1")
 
-
-        ' ** FCA Step1 - compute demand totals at each supply (Origin) point  **
+        ' ** FCA Step1 - compute demand totals at each supply (origin) point  **
 
         Label1.Text = "computing FCA scores - step 1"
         System.Windows.Forms.Application.DoEvents()
+
+        'create a Dictionary of the demand point Volumes
+        inputFL = pMap.Layer(configObj.DemandLayerIndex)
+        pDisplayTable = inputFL
+        pTable = pDisplayTable.DisplayTable
+
+        Dim lookup1 As New Dictionary(Of Integer, Double)
+        Dim pCursor As ICursor = pTable.Search(Nothing, False)
+        Dim pRow As IRow = pCursor.NextRow
+
+        Do Until pRow Is Nothing
+            lookup1.Add(pRow.OID, pRow.Value(configObj.DemandVolumeField))
+            pRow = pCursor.NextRow
+        Loop
 
         'connect to the OD matrix results table
         Dim pODTable As ITable = pNAContext2.NAClasses.ItemByName("ODLines")
@@ -570,12 +581,6 @@ Public Class s4_frmRun
 
         Try
 
-            'create a pointer to the demand points attribute table (as ITable)
-            inputFL = pMap.Layer(configObj.DemandLayerIndex)
-            '  inputFC = inputFL.FeatureClass
-            pDisplayTable = inputFL
-            pTable = pDisplayTable.DisplayTable
-
             'set up a cursor to access all rows of the OD table
             pODcursor = pODTable.Search(Nothing, True)
             pODrow = pODcursor.NextRow
@@ -594,13 +599,8 @@ Public Class s4_frmRun
                 demandID = numbers(1)
                 distance = pODrow.Value(idxImpedance)
 
-                'look up the demand point's Volume value
-                pDemand_QF.WhereClause = pTable.OIDFieldName & " = " & demandID
-                pDemand_FC = pTable.Search(pDemand_QF, True)
-                pDemand_Feature = pDemand_FC.NextFeature
-                demandValue = pDemand_Feature.Value(configObj.DemandVolumeField)
-
-                'scale demand value using distance-decay model
+                'get a scaled demand value
+                lookup1.TryGetValue(demandID, demandValue)
                 demandValue = dist_weighted(demandValue, distance, configObj)
 
                 'check if this supply point exists in the dictionary
@@ -623,6 +623,20 @@ Public Class s4_frmRun
         Label1.Text = "computing FCA scores - step 2"
         System.Windows.Forms.Application.DoEvents()
 
+        'create a Dictionary of the supply point Volumes
+        inputFL = pMap.Layer(configObj.SupplyLayerIndex)
+        pDisplayTable = inputFL
+        pTable = pDisplayTable.DisplayTable
+
+        Dim lookup2 As New Dictionary(Of Integer, Double)
+        pCursor = pTable.Search(Nothing, False)
+        pRow = pCursor.NextRow
+
+        Do Until pRow Is Nothing
+            lookup2.Add(pRow.OID, pRow.Value(configObj.SupplyVolumeField))
+            pRow = pCursor.NextRow
+        Loop
+
         'build dictionary for Step 2 (holding total step-1 scores at each demand point)
         Dim demandList As New Dictionary(Of Integer, destObj)
         Dim supplyValue, availabilityScore As Double
@@ -631,7 +645,6 @@ Public Class s4_frmRun
 
             'create a pointer to the supply points attribute table (as ITable)
             inputFL = pMap.Layer(configObj.SupplyLayerIndex)
-            '      inputFC = inputFL.FeatureClass
             pDisplayTable = inputFL
             pTable = pDisplayTable.DisplayTable
 
@@ -647,14 +660,10 @@ Public Class s4_frmRun
                 demandID = numbers(1)
                 distance = pODrow.Value(idxImpedance)
 
-                'look up the supply point's Volume value
-                pDemand_QF.WhereClause = pTable.OIDFieldName & " = " & supplyID
-                pDemand_FC = pTable.Search(pDemand_QF, True)
-                pDemand_Feature = pDemand_FC.NextFeature
-                supplyValue = pDemand_Feature.Value(configObj.SupplyVolumeField) * ScaleFactor
+                'get a scaled demand value
+                lookup1.TryGetValue(supplyID, supplyValue)
 
-                'compute availability score for this Supply point
-                availabilityScore = supplyValue / demandTotals(supplyID)
+                availabilityScore = supplyValue * ScaleFactor / demandTotals(supplyID)
                 availabilityScore = dist_weighted(availabilityScore, distance, configObj)
 
                 'check if this Demand point already exists in the dictionary
@@ -675,13 +684,6 @@ Public Class s4_frmRun
                 pODrow = pODcursor.NextRow()
             Loop
 
-            'Dim pair2 As KeyValuePair(Of Integer, destObj)
-            'Dim newObj2 As New destObj
-            'For Each pair2 In demandList
-            '    ' Display Key and Value.
-            '    newObj2 = pair2.Value
-            '    f2.txtLog.AppendText(pair2.Key & " -- " & newObj2.twostep.ToString & vbCrLf)
-            'Next
 
             'release resources
             If Not pODcursor Is Nothing Then
@@ -690,6 +692,9 @@ Public Class s4_frmRun
             If Not pDemand_FC Is Nothing Then
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(pDemand_FC)
             End If
+            lookup1 = Nothing
+            lookup2 = Nothing
+
 
         Catch ex As Exception
             Windows.Forms.MessageBox.Show(ex.Message)
@@ -742,16 +747,6 @@ Public Class s4_frmRun
                     pOT_Row = pOutputCursor.NextRow()
                 Loop
 
-                'For Each obj As KeyValuePair(Of Integer, destObj) In demandList
-                '    pDemand_QF.WhereClause = "DemandID = " & obj.Key.ToString
-                '    pODcursor = pOutputTable.Search(pDemand_QF, False)
-                '    pODrow = pODcursor.NextRow
-                '    pODrow.Value(4) = obj.Value.count
-                '    pODrow.Value(5) = (obj.Value.sumdist / obj.Value.count)
-                '    pODrow.Value(6) = obj.Value.twostep
-                '    pODrow.Store()
-                'Next
-
             End If
 
         Catch ex As Exception
@@ -759,10 +754,9 @@ Public Class s4_frmRun
         End Try
 
         Label1.Text = "Run completed"
+        Label5.Text = "Outputs stored in dbf file: " & resultsTable
         System.Windows.Forms.Application.DoEvents()
 
-        Windows.Forms.MessageBox.Show("Run completed." & vbCrLf & "Outputs stored in dbf file..." & vbCrLf & resultsTable, _
-                                             "Complete", Windows.Forms.MessageBoxButtons.OK, Windows.Forms.MessageBoxIcon.Information)
 
         System.Runtime.InteropServices.Marshal.ReleaseComObject(pOutputTable)
         pMxDoc.CurrentContentsView = pMxDoc.ContentsView(1)

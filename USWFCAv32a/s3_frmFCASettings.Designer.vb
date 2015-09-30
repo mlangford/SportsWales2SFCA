@@ -199,11 +199,10 @@ Partial Class s3_frmFCASettings
         Me.btn3Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn3Next.ForeColor = System.Drawing.Color.White
         Me.btn3Next.Image = Global.USWFCAv32a.My.Resources.Resources.nextB
-        Me.btn3Next.ImageAlign = System.Drawing.ContentAlignment.TopLeft
-        Me.btn3Next.Location = New System.Drawing.Point(652, 435)
+        Me.btn3Next.Location = New System.Drawing.Point(618, 430)
         Me.btn3Next.Margin = New System.Windows.Forms.Padding(4)
         Me.btn3Next.Name = "btn3Next"
-        Me.btn3Next.Size = New System.Drawing.Size(55, 54)
+        Me.btn3Next.Size = New System.Drawing.Size(95, 55)
         Me.btn3Next.TabIndex = 1
         Me.btn3Next.UseVisualStyleBackColor = True
         '
@@ -212,10 +211,10 @@ Partial Class s3_frmFCASettings
         Me.btn3Prev.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn3Prev.ForeColor = System.Drawing.Color.White
         Me.btn3Prev.Image = Global.USWFCAv32a.My.Resources.Resources.prevB
-        Me.btn3Prev.Location = New System.Drawing.Point(24, 435)
+        Me.btn3Prev.Location = New System.Drawing.Point(15, 430)
         Me.btn3Prev.Margin = New System.Windows.Forms.Padding(4)
         Me.btn3Prev.Name = "btn3Prev"
-        Me.btn3Prev.Size = New System.Drawing.Size(55, 54)
+        Me.btn3Prev.Size = New System.Drawing.Size(95, 55)
         Me.btn3Prev.TabIndex = 0
         Me.btn3Prev.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btn3Prev.UseVisualStyleBackColor = True
@@ -225,7 +224,7 @@ Partial Class s3_frmFCASettings
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(740, 503)
+        Me.ClientSize = New System.Drawing.Size(740, 511)
         Me.Controls.Add(Me.btn3Next)
         Me.Controls.Add(Me.btn3Prev)
         Me.Controls.Add(Me.GroupBox3)

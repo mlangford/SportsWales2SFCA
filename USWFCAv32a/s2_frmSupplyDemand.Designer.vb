@@ -198,11 +198,10 @@ Partial Class s2_frmSupplyDemand
         Me.btn2Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn2Next.ForeColor = System.Drawing.Color.White
         Me.btn2Next.Image = Global.USWFCAv32a.My.Resources.Resources.nextB
-        Me.btn2Next.ImageAlign = System.Drawing.ContentAlignment.TopLeft
-        Me.btn2Next.Location = New System.Drawing.Point(652, 435)
+        Me.btn2Next.Location = New System.Drawing.Point(618, 430)
         Me.btn2Next.Margin = New System.Windows.Forms.Padding(4)
         Me.btn2Next.Name = "btn2Next"
-        Me.btn2Next.Size = New System.Drawing.Size(55, 54)
+        Me.btn2Next.Size = New System.Drawing.Size(95, 55)
         Me.btn2Next.TabIndex = 1
         Me.btn2Next.UseVisualStyleBackColor = True
         '
@@ -211,7 +210,7 @@ Partial Class s2_frmSupplyDemand
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(740, 503)
+        Me.ClientSize = New System.Drawing.Size(740, 511)
         Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.btn2Next)

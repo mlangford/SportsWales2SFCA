@@ -43,6 +43,7 @@ Partial Class frmActivityLog
         Me.Controls.Add(Me.txtLog)
         Me.MaximizeBox = False
         Me.MinimizeBox = False
+        Me.MinimumSize = New System.Drawing.Size(500, 200)
         Me.Name = "frmActivityLog"
         Me.Text = "Network Analyst Report"
         Me.TopMost = True

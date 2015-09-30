@@ -46,6 +46,7 @@ Partial Class s4_frmRun
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
         Me.Panel5 = New System.Windows.Forms.Panel()
         Me.Label1 = New System.Windows.Forms.Label()
+        Me.Label5 = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.Panel3.SuspendLayout()
         Me.Panel1.SuspendLayout()
@@ -236,10 +237,10 @@ Partial Class s4_frmRun
         Me.btn4Prev.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn4Prev.ForeColor = System.Drawing.Color.White
         Me.btn4Prev.Image = Global.USWFCAv32a.My.Resources.Resources.prevB
-        Me.btn4Prev.Location = New System.Drawing.Point(24, 435)
+        Me.btn4Prev.Location = New System.Drawing.Point(15, 430)
         Me.btn4Prev.Margin = New System.Windows.Forms.Padding(4)
         Me.btn4Prev.Name = "btn4Prev"
-        Me.btn4Prev.Size = New System.Drawing.Size(55, 54)
+        Me.btn4Prev.Size = New System.Drawing.Size(95, 55)
         Me.btn4Prev.TabIndex = 1
         Me.btn4Prev.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
         Me.btn4Prev.UseVisualStyleBackColor = True
@@ -249,11 +250,10 @@ Partial Class s4_frmRun
         Me.btnExecute.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnExecute.ForeColor = System.Drawing.Color.White
         Me.btnExecute.Image = Global.USWFCAv32a.My.Resources.Resources.finish
-        Me.btnExecute.ImageAlign = System.Drawing.ContentAlignment.TopLeft
-        Me.btnExecute.Location = New System.Drawing.Point(652, 435)
+        Me.btnExecute.Location = New System.Drawing.Point(618, 430)
         Me.btnExecute.Margin = New System.Windows.Forms.Padding(4)
         Me.btnExecute.Name = "btnExecute"
-        Me.btnExecute.Size = New System.Drawing.Size(55, 54)
+        Me.btnExecute.Size = New System.Drawing.Size(95, 55)
         Me.btnExecute.TabIndex = 2
         Me.btnExecute.UseVisualStyleBackColor = True
         '
@@ -325,12 +325,24 @@ Partial Class s4_frmRun
         Me.Label1.Text = "."
         Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Location = New System.Drawing.Point(138, 472)
+        Me.Label5.Name = "Label5"
+        Me.Label5.RightToLeft = System.Windows.Forms.RightToLeft.Yes
+        Me.Label5.Size = New System.Drawing.Size(12, 17)
+        Me.Label5.TabIndex = 11
+        Me.Label5.Text = "."
+        Me.Label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
         's4_frmRun
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(740, 503)
+        Me.ClientSize = New System.Drawing.Size(740, 511)
+        Me.Controls.Add(Me.Label5)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.Label3)
@@ -387,4 +399,5 @@ Partial Class s4_frmRun
     Friend WithEvents Panel4 As System.Windows.Forms.Panel
     Friend WithEvents cboScale As System.Windows.Forms.ComboBox
     Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents Label5 As System.Windows.Forms.Label
 End Class
