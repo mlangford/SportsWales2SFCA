@@ -198,7 +198,7 @@ Partial Class s3_frmFCASettings
         Me.btn3Next.Enabled = False
         Me.btn3Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn3Next.ForeColor = System.Drawing.Color.White
-        Me.btn3Next.Image = Global.USWFCAv32a.My.Resources.Resources.nextB
+        Me.btn3Next.Image = Global.SWFCA.My.Resources.Resources.nextB
         Me.btn3Next.Location = New System.Drawing.Point(618, 430)
         Me.btn3Next.Margin = New System.Windows.Forms.Padding(4)
         Me.btn3Next.Name = "btn3Next"
@@ -210,7 +210,7 @@ Partial Class s3_frmFCASettings
         '
         Me.btn3Prev.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn3Prev.ForeColor = System.Drawing.Color.White
-        Me.btn3Prev.Image = Global.USWFCAv32a.My.Resources.Resources.prevB
+        Me.btn3Prev.Image = Global.SWFCA.My.Resources.Resources.prevB
         Me.btn3Prev.Location = New System.Drawing.Point(15, 430)
         Me.btn3Prev.Margin = New System.Windows.Forms.Padding(4)
         Me.btn3Prev.Name = "btn3Prev"

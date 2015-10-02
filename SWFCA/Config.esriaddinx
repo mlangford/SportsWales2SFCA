@@ -3,17 +3,17 @@
   <AddInID>{f9d19da9-62a2-40fb-94a0-9afc7f7f10d3}</AddInID>
   <Description>Geographical accessibility metrics, including FCA scores</Description>
   <Version>2.0</Version>
-  <Image>Images\USWFCAv32a_1.png</Image>
+  <Image>Images\SWFCA_1.png</Image>
   <Author>Mitchel Langford</Author>
   <Company>WISERD / University of South Wales</Company>
   <Date>17/07/2015</Date>
   <Targets>
     <Target name="Desktop" version="10.1" />
   </Targets>
-  <AddIn language="CLR4.0" library="USWFCAv32a.dll" namespace="USWFCAv32a">
+  <AddIn language="CLR4.0" library="SW-FCA.dll" namespace="SWFCA">
     <ArcMap>
       <Commands>
-        <Button id="WISERD_University_of_USW" class="USWFCAv32a" message="FCA and other accessibility metrics" caption="FCAv32a" tip="FCA and Nearest Distance metrics" category="Add-In Controls" image="Images\USWFCAv32a.png" />
+        <Button id="SportWales_University_of_SW" class="SWFCA" message="FCA accessibility metrics" caption="SW-FCA" tip="FCA accessibility metrics" category="Add-In Controls" image="Images\SWFCA.png" />
       </Commands>
     </ArcMap>
   </AddIn>

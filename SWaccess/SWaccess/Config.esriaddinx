@@ -1,0 +1,20 @@
+﻿<ESRI.Configuration xmlns="http://schemas.esri.com/Desktop/AddIns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>SWaccess</Name>
+  <AddInID>{1b8a6e97-0774-4e82-b039-d64ced386078}</AddInID>
+  <Description>A tool to compute accessibility scores</Description>
+  <Version>1.0</Version>
+  <Image>Images\SWaccess_1.png</Image>
+  <Author>Mitch Langford</Author>
+  <Company>University of South Wales</Company>
+  <Date>02-Oct-15</Date>
+  <Targets>
+    <Target name="Desktop" version="10.1" />
+  </Targets>
+  <AddIn language="CLR4.0" library="SWaccess.dll" namespace="SWaccess">
+    <ArcMap>
+      <Commands>
+        <Button id="University_of_South_Wales_SWaccess" class="SWaccess" message="Add-in tool for FCA accessibility scores&#xD;&#xA;" caption="FCA Scores" tip="FCA Scores" category="Add-In Controls" image="Images\SWaccess.png" />
+      </Commands>
+    </ArcMap>
+  </AddIn>
+</ESRI.Configuration>

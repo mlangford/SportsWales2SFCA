@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{37684700-046B-4380-B004-5B7E7A63A70C}</ProjectGuid>
+    <ProjectGuid>{9BA24241-2DAC-4501-B50C-C5BCF49003AF}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>USWFCAv32a</RootNamespace>
-    <AssemblyName>USWFCAv32a</AssemblyName>
+    <RootNamespace>SWaccess</RootNamespace>
+    <AssemblyName>SWaccess</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -42,7 +42,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>USWFCAv32a.xml</DocumentationFile>
+    <DocumentationFile>SWaccess.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -51,16 +51,14 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>USWFCAv32a.xml</DocumentationFile>
+    <DocumentationFile>SWaccess.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ESRI.ArcGIS.Carto, Version=10.1.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ESRI.ArcGIS.DataSourcesFile, Version=10.1.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ESRI.ArcGIS.Desktop.AddIns">
@@ -70,19 +68,15 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="ESRI.ArcGIS.Geodatabase, Version=10.1.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ESRI.ArcGIS.Geometry, Version=10.1.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ESRI.ArcGIS.Geoprocessing, Version=10.1.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ESRI.ArcGIS.NetworkAnalyst, Version=10.1.0.0, Culture=neutral, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="ESRI.ArcGIS.System">
@@ -91,6 +85,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
@@ -109,19 +104,19 @@
       <DependentUpon>Config.esriaddinx</DependentUpon>
     </Compile>
     <Compile Include="configParams.vb" />
-    <Compile Include="ESRI_eg1.vb" />
     <Compile Include="fcaNAutils.vb" />
+    <Compile Include="fcaStructures.vb" />
     <Compile Include="fcaUtilities.vb" />
-    <Compile Include="frmActivityLog.Designer.vb">
-      <DependentUpon>frmActivityLog.vb</DependentUpon>
-    </Compile>
-    <Compile Include="frmActivityLog.vb">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="frmAbout.Designer.vb">
       <DependentUpon>frmAbout.vb</DependentUpon>
     </Compile>
     <Compile Include="frmAbout.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmActivityLog.Designer.vb">
+      <DependentUpon>frmActivityLog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmActivityLog.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -141,11 +136,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="frmActivityLog.resx">
-      <DependentUpon>frmActivityLog.vb</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="frmAbout.resx">
       <DependentUpon>frmAbout.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmActivityLog.resx">
+      <DependentUpon>frmActivityLog.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -155,7 +150,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="s1_frmIntroduction.resx">
       <DependentUpon>s1_frmIntroduction.vb</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="s2_frmSupplyDemand.resx">
       <DependentUpon>s2_frmSupplyDemand.vb</DependentUpon>
@@ -183,11 +177,10 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <Generator>ArcGISAddInHostGenerator</Generator>
       <LastGenOutput>Config.Designer.vb</LastGenOutput>
-      <SubType>Designer</SubType>
     </AddInContent>
   </ItemGroup>
   <ItemGroup>
-    <AddInContent Include="Images\USWFCAv32a_1.png" />
+    <AddInContent Include="Images\SWaccess_1.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="s1_frmIntroduction.Designer.vb">
@@ -214,40 +207,15 @@
     <Compile Include="s4_frmRun.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="fcaStructures.vb" />
-    <Compile Include="USWFCAv32a.vb" />
-    <AddInContent Include="Images\USWFCAv32a.png" />
+    <Compile Include="SWaccess.vb" />
+    <AddInContent Include="Images\SWaccess.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="ESRI.ArcGIS.ArcMapUI">
       <Private>False</Private>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\compute.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Fig_Butterworth.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Fig_Gaussian.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Fig_Linear.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Fig_None.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\finish.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\nextB.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\prevB.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -271,8 +239,11 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <None Include="Resources\prevB.png" />
+    <None Include="Resources\nextB.png" />
+    <None Include="Resources\finish.png" />
   </ItemGroup>
   <PropertyGroup>
     <ZipFileExtension>esriAddIn</ZipFileExtension>

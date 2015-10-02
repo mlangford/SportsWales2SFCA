@@ -236,7 +236,7 @@ Partial Class s4_frmRun
         '
         Me.btn4Prev.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn4Prev.ForeColor = System.Drawing.Color.White
-        Me.btn4Prev.Image = Global.USWFCAv32a.My.Resources.Resources.prevB
+        Me.btn4Prev.Image = Global.SWaccess.My.Resources.Resources.prevB
         Me.btn4Prev.Location = New System.Drawing.Point(15, 430)
         Me.btn4Prev.Margin = New System.Windows.Forms.Padding(4)
         Me.btn4Prev.Name = "btn4Prev"
@@ -249,7 +249,7 @@ Partial Class s4_frmRun
         '
         Me.btnExecute.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnExecute.ForeColor = System.Drawing.Color.White
-        Me.btnExecute.Image = Global.USWFCAv32a.My.Resources.Resources.finish
+        Me.btnExecute.Image = Global.SWaccess.My.Resources.Resources.finish
         Me.btnExecute.Location = New System.Drawing.Point(618, 430)
         Me.btnExecute.Margin = New System.Windows.Forms.Padding(4)
         Me.btnExecute.Name = "btnExecute"

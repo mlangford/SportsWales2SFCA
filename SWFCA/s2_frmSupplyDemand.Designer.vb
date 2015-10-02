@@ -197,7 +197,7 @@ Partial Class s2_frmSupplyDemand
         Me.btn2Next.Enabled = False
         Me.btn2Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn2Next.ForeColor = System.Drawing.Color.White
-        Me.btn2Next.Image = Global.USWFCAv32a.My.Resources.Resources.nextB
+        Me.btn2Next.Image = Global.SWFCA.My.Resources.Resources.nextB
         Me.btn2Next.Location = New System.Drawing.Point(618, 430)
         Me.btn2Next.Margin = New System.Windows.Forms.Padding(4)
         Me.btn2Next.Name = "btn2Next"

@@ -86,7 +86,7 @@ Partial Class s1_frmIntroduction
         '
         Me.btn1Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btn1Next.ForeColor = System.Drawing.Color.White
-        Me.btn1Next.Image = Global.USWFCAv32a.My.Resources.Resources.nextB
+        Me.btn1Next.Image = Global.SWaccess.My.Resources.Resources.nextB
         Me.btn1Next.Location = New System.Drawing.Point(618, 430)
         Me.btn1Next.Margin = New System.Windows.Forms.Padding(4)
         Me.btn1Next.Name = "btn1Next"
