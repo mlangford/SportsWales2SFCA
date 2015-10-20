@@ -377,7 +377,7 @@ Public Class s4_frmRun
             pFieldsEdit.AddField(pNewField)
 
             pNewField = New Field
-            pNewField.Name_2 = "CostDist"
+            pNewField.Name_2 = "Nearest"
             pNewField.Type_2 = esriFieldType.esriFieldTypeSingle
             pNewField.Length_2 = 14
             pNewField.DefaultValue_2 = 0.0
@@ -386,7 +386,7 @@ Public Class s4_frmRun
             pFieldsEdit.AddField(pNewField)
 
             pNewField = New Field
-            pNewField.Name_2 = "WithinDist"
+            pNewField.Name_2 = "InReach"
             pNewField.Type_2 = esriFieldType.esriFieldTypeInteger
             pNewField.Length_2 = 8
             pFieldsEdit.AddField(pNewField)
@@ -784,7 +784,7 @@ Public Class s4_frmRun
 
 #End Region
 
-    Private Sub txtPath_DoubleClick(sender As System.Object, e As System.EventArgs) Handles txtPath.DoubleClick
+    Private Sub txtPath_Click(sender As System.Object, e As System.EventArgs) Handles txtPath.Click
         'select a path for the output table using FolderBrowser dialog
         FolderBrowserDialog1.SelectedPath = My.Computer.FileSystem.SpecialDirectories.MyDocuments
         If FolderBrowserDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
